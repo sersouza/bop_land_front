@@ -1,0 +1,36 @@
+<h1>Criar BOP</h1>
+<!-- Opções para adicionar um novo item -->
+<section class="newItem">
+  <input type="text" id="sonda" placeholder="Digite a sonda:">
+  <select class="custom-select" id="tipo">
+    <option selected>Choose...</option>
+    <option value="1">One</option>
+    <option value="2">Two</option>
+    <option value="3">Three</option>
+  </select>
+</section>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-6">
+      <p>Valvulas disponiveis</p>
+      <div id="source-valvulas" class="box"> </div>
+    </div>
+    <div class="col-md-6">
+      <p>Preventores disponiveis</p>
+      <div id="source-preventores" class="box"> </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <p>Valvulas aceitas</p>
+      <div id="target-valvulas" class="box"> </div>
+    </div>
+    <div class="col-md-6">
+      <p>Preventores aceitos</p>
+      <div id="target-preventores" class="box"> </div>
+    </div>
+  </div>
+</div>
+
+<button onclick="salvar()" class="addBtn">Salvar</button>
