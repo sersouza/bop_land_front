@@ -1,101 +1,71 @@
-/* .title {
-    color: white;
-    width: 100%;
-    background-color: rgb(35, 32, 24);
-    display: inline-block;
-    padding: 2px 0px;
-    position: sticky;
-    top: 0px;
+body {
+    --nav-width: 200px;
+    margin: 0 0 0 var(--nav-width);
+    font-family: 'Quicksand', sans-serif;
+    font-size: 18px;
 }
 
-.banner {
-    height: 300px;
-    overflow: hidden;
+.nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: var(--nav-width);
+    height: 100vh;
+    background: #222222;
 }
 
-.banner img {
-    margin: 0px 0px 0px 0px;
-    width: 100%;
+.nav__link {
+    display: block;
+    padding: 12px 18px;
+    text-decoration: none;
+    color: #eeeeee;
+    font-weight: 500;
 }
 
-.newItem {
-    background-color: rgb(225, 222, 199);
-    padding: 30px 40px;
-    color: white;
+.nav__link:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+#content {
+    margin: 2em;
+    line-height: 1.5;
+    font-weight: 500;
+}
+
+a {
+    color: #009579;
+}
+
+
+/* @font-face {
+    font-family: Confortaa;
+    src: url(/static/fonts/Comfortaa-VariableFont_wght.ttf)
+  }
+
+html * {
+    font-size: 16px;
+    line-height: 1.625;
+    color: "#2020131";
+    font-family: Confortaa, sans-serif;
+  }
+
+.flex-container{
     display: flex;
-    justify-content: center;
-}
-
-.newItem:after {
-    content: "";
-    display: table;
-    clear: both;
-}
-
-#newInput {
-    margin: 0;
-    border: 1px solid rgb(35, 32, 24);
-    width: 25%;
-    padding: 10px;
-    font-size: 16px;
-}
-
-#newQuantity {
-    margin: 0;
-    border: 1px solid rgb(35, 32, 24);
-    width: 8%;
-    padding: 10px;
-    font-size: 16px;
-}
-
-#newPrice {
-    margin: 0;
-    border: 1px solid rgb(35, 32, 24);
-    width: 5%;
-    padding: 10px;
-    font-size: 16px;
-}
-
-
-.addBtn {
-    padding: 9px 10px;
-    background-color: rgb(35, 32, 24);
-    color: white;
-    text-align: center;
-    font-size: 16px;
-    cursor: pointer;
-    transition: 0.3s;
-    border-radius: 2px;
-}
-
-.addBtn:hover {
-    background-color: #2ab53a;
-    color: white;
-}
-
-.items {
-    margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-}
-
-.close:hover {
-    color: #f44336;
-    font-weight: bolder;
-}
-
-.tst {
-    background-color: #f44336
-} */
-
-
-.box{
-    width: 100px;
-    height: 100px;
+    min-width: 200px;
+    min-height: 200px;
+    flex-wrap: wrap;
     border: 1px solid #000;
+    gap: 5px;
+    align-items: center;
+    padding: 10px;
 }
 
-.addBtn{
-    position: absolute;
+.item{
+    display: flex;
+    flex-direction: column;
 }
+
+.newItem{
+    display: flex;
+    gap: 5px;
+} */
