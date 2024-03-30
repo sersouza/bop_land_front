@@ -15,57 +15,83 @@ let valvulas
   --------------------------------------------------------------------------------------
 */
 
-const homeView = `<h1>Lista de BOPs</h1>
-<!-- Opções para adicionar um novo item -->
-<section class="newItem">
-  <input type="text" id="sonda-busca" placeholder="Digite a sonda:">
-  <button onclick="buscarBOP()" class="addBtn">Buscar</button>
-  <button onclick="listarBOP()" class="addBtn">Todos</button>
-</section>
-<table id="data-table" class="table">
-  <thead>
-    <tr>
-      <th scope="col">Sonda</th>
-      <th scope="col">Valvulas</th>
-      <th scope="col">Preventores</th>
-      <th scope="col">Ações</th>
-    </tr>
-  </thead>
-  <tbody id="table-body">
-    <!-- Data will be inserted here dynamically -->
-  </tbody>
-</table>`
-
-const cadastrarView = `<h1>Criar BOP</h1>
-<!-- Opções para adicionar um novo item -->
-<section class="newItem">
-  <input type="text" id="sonda-cadastro" placeholder="Digite a sonda:">
-</section>
-
-<div class="container">
-  <div class="row">
-    <div class="col-md-6">
-      <p>Valvulas disponiveis</p>
-      <div id="source-valvulas" class="flex-container"> </div>
-    </div>
-    <div class="col-md-6">
-      <p>Preventores disponiveis</p>
-      <div id="source-preventores" class="flex-container"> </div>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-md-6">
-      <p>Valvulas aceitas</p>
-      <div id="target-valvulas" class="flex-container"> </div>
-    </div>
-    <div class="col-md-6">
-      <p>Preventores aceitos</p>
-      <div id="target-preventores" class="flex-container"> </div>
-    </div>
-  </div>
+const homeView = `
+<div class="container-fluid">
+  <h1>Lista de BOPs</h1>
+  <section class="newItem">
+    <input type="text" id="sonda-busca" placeholder="Digite a sonda:">
+    <button onclick="buscarBOP()" class="addBtn">Buscar</button>
+    <button onclick="listarBOP()" class="addBtn">Todos</button>
+  </section>
+  <table id="data-table" class="table">
+    <thead>
+      <tr>
+        <th scope="col">Sonda</th>
+        <th scope="col">Válvulas</th>
+        <th scope="col">Preventores</th>
+        <th scope="col">Ações</th>
+      </tr>
+    </thead>
+    <tbody id="table-body">
+      <!-- Data will be inserted here dynamically -->
+    </tbody>
+  </table>
 </div>
+`
 
-<button onclick="salvarBOP()" class="addBtn">Salvar</button>`
+const cadastrarView = `
+<div class="container-fluid">
+  <h1>Criar BOP</h1>
+  <input class="mb-3" type="text" id="sonda-cadastro" placeholder="Digite a sonda:">
+  <div class="row gy-4">
+    <div class="col-6">
+      <div class="card">
+          <div class="card-header">
+          Válvulas disponíveis
+          </div>
+          <div id="source-valvulas" class="card-body"></div>
+      </div>
+    </div>
+    <div class="col-6">
+      <div class="card">
+          <div class="card-header">
+          Preventores disponíveis
+          </div>
+          <div id="source-preventores" class="card-body"></div>
+      </div>
+    </div>
+    <div class="col-6">
+      <div class="card">
+          <div class="card-header">
+          Válvulas selecionadas
+          </div>
+          <div id="target-valvulas" class="card-body"></div>
+      </div>
+    </div>
+    <div class="col-6">
+      <div class="card">
+          <div class="card-header">
+          Preventores selecionados
+          </div>
+          <div id="target-preventores" class="card-body"></div>
+      </div>
+    </div>
+  </div>
+  <button onclick="salvarBOP()" class="mt-3">Salvar</button>
+</div>`
+
+/*
+  --------------------------------------------------------------------------------------
+  Criar a resposividade da sidebar
+  --------------------------------------------------------------------------------------
+*/
+
+const hamburguer = document.getElementById('toggle-btn')
+
+hamburguer.addEventListener("click", ()=> {
+    document.getElementById("sidebar").classList.toggle("expand")
+
+})
 
 /*
   --------------------------------------------------------------------------------------
@@ -204,7 +230,7 @@ const populateTable = (data) => {
 
   const trashSymbol = (sonda) => {
     return `<button onclick="deletaBOP('${sonda}')" class="addBtn"><span style="font-size: 1em; color: Tomato;">
-    <i class="fa-solid fa-trash"></i>
+    <i class="lni lni-trash-can"></i>
      </span></button>    
   `}
 
@@ -225,7 +251,7 @@ const populateTable = (data) => {
                 <tbody>
                 ${Array.from({ length: valveRows }, (_, i) => i).map(i => `
                     <tr>
-                    ${item.valvulas.slice(i * 5, (i + 1) * 5).map(v => `<td scope="col"><span class="badge bg-secondary">${v}</span></td>`).join('')}
+                    ${item.valvulas.slice(i * 5, (i + 1) * 5).map(v => `<td scope="col"><span class="badge bg-dark-subtle border border-dark-subtle text-dark-emphasis rounded-pill">${v}</span></td>`).join('')}
                     </tr>`).join('')}
                 </tbody>
             </table>
@@ -235,7 +261,7 @@ const populateTable = (data) => {
                 <tbody>
                 ${Array.from({ length: preventorRows }, (_, i) => i).map(i => `
                     <tr>
-                    ${item.preventores.slice(i * 5, (i + 1) * 5).map(p => `<td scope="col"><span class="badge bg-secondary">${p}</span></td>`).join('')}
+                    ${item.preventores.slice(i * 5, (i + 1) * 5).map(p => `<td scope="col"><span class="badge bg-dark-subtle border border-dark-subtle text-dark-emphasis rounded-pill">${p}</span></td>`).join('')}
                     </tr>`).join('')}
                 </tbody>
             </table>
@@ -395,7 +421,7 @@ const limpaCadastro = async () => {
   //popular as valvulas disponiveis
   valvulas.map(v => {
     const span = document.createElement('span')
-    span.innerHTML = `<span id=${v} class="item badge bg-secondary" draggable="true">${v}</span>`
+    span.innerHTML = `<span id=${v} class="badge bg-dark-subtle border border-dark-subtle text-dark-emphasis rounded-pill" draggable="true">${v}</span>`
 
     sourceValvulas.appendChild(span)
   })
@@ -403,7 +429,7 @@ const limpaCadastro = async () => {
   //popular os preventores disponiveis
   preventores.map(p => {
     const span = document.createElement('span')
-    span.innerHTML = `<span id=${p} class="item badge bg-secondary" draggable="true">${p}</span>`
+    span.innerHTML = `<span id=${p} class="badge bg-dark-subtle border border-dark-subtle text-dark-emphasis rounded-pill" draggable="true">${p}</span>`
 
     sourcePreventores.appendChild(span)
   })
