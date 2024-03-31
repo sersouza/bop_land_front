@@ -41,7 +41,7 @@ const cadastrarUsuario = () => {
   Login de um usuário no sistema
   --------------------------------------------------------------------------------------
 */
-const login = () => {
+const login = async () => {
   const formData = new FormData();
   const email = document.getElementById('email-usuario').value
   const senha = document.getElementById('senha-usuario').value
@@ -62,6 +62,8 @@ const login = () => {
         res.json().then(data => localStorage.setItem('token', data.access_token))
         setTimeout(() => {
           const closeEvent = new Event('closeLoginModal');
+          const updateEvent = new Event('updatePerfilView');
+          document.dispatchEvent(updateEvent);
           document.dispatchEvent(closeEvent);
         }, 500)
       }
@@ -86,6 +88,9 @@ const logout = () => {
 
   const openEvent = new Event('openLoginModal');
   document.dispatchEvent(openEvent);
+
+  const clearPerfilView = new Event('clearPerfilView');
+  document.dispatchEvent(clearPerfilView);
 }
 
 /*
@@ -93,7 +98,7 @@ const logout = () => {
   Coletar o dado de seção do usuario
   --------------------------------------------------------------------------------------
 */
-const dadoSecao = async () => {
+const updatePerfilView = async () => {
   const url = URL_BASE + 'usuario'
 
   const user = await fetch(url, {
@@ -108,8 +113,6 @@ const dadoSecao = async () => {
 
   const content = document.getElementById('perfil-content');
 
-  console.log(user)
-
   // Clear existing data
   content.innerHTML = ''
 
@@ -119,4 +122,16 @@ const dadoSecao = async () => {
   else{
     content.innerHTML = `<h1>Olá, ${user.nome}!!!</h1>`
   }
+}
+
+/*
+  --------------------------------------------------------------------------------------
+  Coletar o dado de seção do usuario
+  --------------------------------------------------------------------------------------
+*/
+const clearPerfilView = () => {
+  const content = document.getElementById('perfil-content');
+
+  // Clear existing data
+  content.innerHTML = ''
 }

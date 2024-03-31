@@ -26,6 +26,14 @@ document.addEventListener("DOMContentLoaded", () => {
     loginModal.show();
   });
 
+  document.addEventListener('updatePerfilView', () => {
+    updatePerfilView();
+  });
+
+  document.addEventListener('clearPerfilView', () => {
+    clearPerfilView();
+  });
+
 
   // router propriamente dito
   const renderPage = (route) => {
@@ -41,14 +49,8 @@ document.addEventListener("DOMContentLoaded", () => {
       case '/about':
         contentDiv.innerHTML = '<h2>About Page</h2>';
         break;
-      case '/perfil':
-        contentDiv.innerHTML = perfilView
-        dadoSecao()
-        break;
       default:
         contentDiv.innerHTML = perfilView
-        dadoSecao()
-        // contentDiv.innerHTML = '<h2>Olá</h2>';
     }
   }
 
