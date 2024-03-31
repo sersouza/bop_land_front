@@ -97,7 +97,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const registroModal = new bootstrap.Modal(document.getElementById("registroModal"));
 
   // deixando o modal de login ativo ao abrir a aplicação
-  loginModal.show()
+  // loginModal.show()
 
   //criando um listener para fechar o modal após registrar-se ou logar
   document.addEventListener('closeLoginModal', () => {
