@@ -39,6 +39,11 @@ const homeView = `
 </div>
 `
 
+const perfilView = `
+<div class="container-fluid">
+  <div id="perfil-content"></div>
+`
+
 const cadastrarView = `
 <div class="container-fluid">
   <h1>Criar BOP</h1>
@@ -90,19 +95,19 @@ document.addEventListener("DOMContentLoaded", () => {
   const contentDiv = document.getElementById('content');
   const loginModal = new bootstrap.Modal(document.getElementById("loginModal"));
   const registroModal = new bootstrap.Modal(document.getElementById("registroModal"));
-  
+
   // deixando o modal de login ativo ao abrir a aplicação
   loginModal.show()
 
   //criando um listener para fechar o modal após registrar-se ou logar
   document.addEventListener('closeLoginModal', () => {
     loginModal.hide();
-});
+  });
 
   //criando um listener para fechar o modal após registrar-se ou logar
   document.addEventListener('closeRegistroModal', () => {
     registroModal.hide();
-});
+  });
 
   // router propriamente dito
   const renderPage = (route) => {
@@ -118,9 +123,14 @@ document.addEventListener("DOMContentLoaded", () => {
       case '/about':
         contentDiv.innerHTML = '<h2>About Page</h2>';
         break;
+      case '/perfil':
+        contentDiv.innerHTML = perfilView
+        dadoSecao()
+        break;
       default:
-        contentDiv.innerHTML = '<h2>Olá</h2>';
-        // getUserData('secao')
+        contentDiv.innerHTML = perfilView
+        dadoSecao()
+        // contentDiv.innerHTML = '<h2>Olá</h2>';
     }
   }
 
@@ -134,76 +144,6 @@ document.addEventListener("DOMContentLoaded", () => {
   handleHashChange();
 });
 
-
-/*
-  --------------------------------------------------------------------------------------
-  Registrar um usuário no sistema
-  --------------------------------------------------------------------------------------
-*/
-const cadastrarUsuario = () => {
-  const nome = document.getElementById('nome-usuario-registro').value
-  const email = document.getElementById('email-usuario-registro').value 
-  const senha = document.getElementById('senha-usuario-registro').value
-  
-  if (nome.trim() === '' || email.trim() === '' || senha.trim() === '') {
-    alert("Por favor, preencha todos os campos");
-    return; // Exit the function early
-  }
-  
-  const formData = new FormData();
-  formData.append('nome', nome)
-  formData.append('email', email)
-  formData.append('senha', senha)
-
-  const url = URL_BASE + 'cadastro'
-
-  fetch(url, { method: 'post', body: formData })
-  .then(res => {
-    if (res.ok){
-      alert("Salvo com sucesso!")
-      setTimeout(() => {
-        const closeEvent = new Event('closeRegistroModal');
-        document.dispatchEvent(closeEvent);
-      }, 500)
-    }
-    else{
-      res.json().then(data => alert(data.message))
-    }
-  })
-  .catch(error => console.log('ERROR '+error))
-}
-
-/*
-  --------------------------------------------------------------------------------------
-  Login de um usuário no sistema
-  --------------------------------------------------------------------------------------
-*/
-
-const login = () => {
-  const formData = new FormData();
-  const email = document.getElementById('email-usuario').value 
-  const senha = document.getElementById('senha-usuario').value
-
-  formData.append('email', email)
-  formData.append('senha', senha)
-
-  const url = URL_BASE + 'login'
-
-  fetch(url, { method: 'post', body: formData })
-  .then(res => {
-    if (res.ok){
-      setTimeout(() => {
-        const closeEvent = new Event('closeLoginModal');
-        document.dispatchEvent(closeEvent);
-      }, 500)
-    }
-    else{
-      res.json().then(data => alert(data.message))
-    }
-  })
-  .catch(error => console.log('ERROR '+error))
-}
-
 /*
   --------------------------------------------------------------------------------------
   Criar a resposividade da sidebar
@@ -212,11 +152,120 @@ const login = () => {
 
 const hamburguer = document.getElementById('toggle-btn')
 
-hamburguer.addEventListener("click", ()=> {
-    document.getElementById("sidebar").classList.toggle("expand")
+hamburguer.addEventListener("click", () => {
+  document.getElementById("sidebar").classList.toggle("expand")
 
 })
 
+
+/*
+  --------------------------------------------------------------------------------------
+  Registrar um usuário no sistema
+  --------------------------------------------------------------------------------------
+*/
+const cadastrarUsuario = () => {
+  const nome = document.getElementById('nome-usuario-registro').value
+  const email = document.getElementById('email-usuario-registro').value
+  const senha = document.getElementById('senha-usuario-registro').value
+
+  if (nome.trim() === '' || email.trim() === '' || senha.trim() === '') {
+    alert("Por favor, preencha todos os campos");
+    return; // Exit the function early
+  }
+
+  const formData = new FormData();
+  formData.append('nome', nome)
+  formData.append('email', email)
+  formData.append('senha', senha)
+
+  const url = URL_BASE + 'cadastro'
+
+  fetch(url, { method: 'post', body: formData })
+    .then(res => {
+      if (res.ok) {
+        alert("Salvo com sucesso!")
+        setTimeout(() => {
+          const closeEvent = new Event('closeRegistroModal');
+          document.dispatchEvent(closeEvent);
+        }, 500)
+      }
+      else {
+        res.json().then(data => alert(data.message))
+      }
+    })
+    .catch(error => console.log('ERROR ' + error))
+}
+
+/*
+  --------------------------------------------------------------------------------------
+  Login de um usuário no sistema
+  --------------------------------------------------------------------------------------
+*/
+const login = () => {
+  const formData = new FormData();
+  const email = document.getElementById('email-usuario').value
+  const senha = document.getElementById('senha-usuario').value
+
+  formData.append('email', email)
+  formData.append('senha', senha)
+
+  const url = URL_BASE + 'login'
+
+  // checando se já existe um token salvo no localStorage
+  if (localStorage.getItem('token')) {
+    localStorage.removeItem('token')
+  }
+
+  fetch(url, { method: 'post', body: formData })
+    .then(res => {
+      if (res.ok) {
+        res.json().then(data => localStorage.setItem('token', data.access_token))
+        setTimeout(() => {
+          const closeEvent = new Event('closeLoginModal');
+          document.dispatchEvent(closeEvent);
+        }, 500)
+      }
+      else {
+        res.json().then(data => alert(data.message))
+      }
+    })
+    .catch(error => console.log('ERROR ' + error))
+}
+
+/*
+  --------------------------------------------------------------------------------------
+  Coletar o dado de seção do usuario
+  --------------------------------------------------------------------------------------
+*/
+const dadoSecao = async () => {
+  const url = URL_BASE + 'usuario'
+
+  const user = await fetch(url, {
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
+    }
+  })
+    .then(res => res.json())
+    .then(data => { return data })
+    .catch(error => console.log('ERROR ' + error))
+
+  const content = document.getElementById('perfil-content');
+
+  console.log(user)
+
+  // Clear existing data
+  content.innerHTML = ''
+
+  if (user.msg==="Not enough segments"){
+    content.innerHTML = `<h1>Logue e descubra o mundo!!!!!!</h1>`
+  }
+  else{
+    content.innerHTML = `<h1>Olá, ${user.nome}!!!</h1>`
+  }
+
+
+}
 
 /*
   --------------------------------------------------------------------------------------
@@ -476,7 +525,7 @@ const cadastrarBOP = async () => {
 */
 const removeAllChildNodes = (parent) => {
   while (parent.firstChild) {
-      parent.removeChild(parent.firstChild);
+    parent.removeChild(parent.firstChild);
   }
 }
 
@@ -489,17 +538,17 @@ const removeAllChildNodes = (parent) => {
 const limpaCadastro = async () => {
   sourceValvulas = document.getElementById('source-valvulas')
   sourcePreventores = document.getElementById('source-preventores')
-  
+
   // limpando variaveis globais
   valvulasAceitas = []
   preventoresAceitos = []
 
-  if (targetPreventores || targetValvulas){
+  if (targetPreventores || targetValvulas) {
     //limpando os campos de target
     removeAllChildNodes(targetPreventores)
     removeAllChildNodes(targetValvulas)
   }
-  
+
   //trazendo do backend a lista de todas as válvulas disponíveis no banco
   valvulas = await getData('valvulas')
   //trazendo do backend a lista de todas os preventores disponíveis no banco
