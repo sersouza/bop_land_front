@@ -82,26 +82,23 @@ const cadastrarView = `
 
 /*
   --------------------------------------------------------------------------------------
-  Criar a resposividade da sidebar
-  --------------------------------------------------------------------------------------
-*/
-
-const hamburguer = document.getElementById('toggle-btn')
-
-hamburguer.addEventListener("click", ()=> {
-    document.getElementById("sidebar").classList.toggle("expand")
-
-})
-
-/*
-  --------------------------------------------------------------------------------------
   Router com hash utilizando javascript vanilla
   --------------------------------------------------------------------------------------
 */
 
 document.addEventListener("DOMContentLoaded", () => {
   const contentDiv = document.getElementById('content');
+  const modal = new bootstrap.Modal(document.getElementById("loginModal"));
+  
+  // deixando o modal de login ativo ao abrir a aplicação
+  modal.show()
 
+  //criando um listener para fechar o modal após registrar-se ou logar
+  document.addEventListener('closeModal', () => {
+    modal.hide();
+});
+
+  // router propriamente dito
   const renderPage = (route) => {
     switch (route) {
       case '/':
@@ -116,7 +113,8 @@ document.addEventListener("DOMContentLoaded", () => {
         contentDiv.innerHTML = '<h2>About Page</h2>';
         break;
       default:
-        contentDiv.innerHTML = '<h2>Page Not Found</h2>';
+        contentDiv.innerHTML = '<h2>Olá</h2>';
+        // getUserData('secao')
     }
   }
 
@@ -129,6 +127,117 @@ document.addEventListener("DOMContentLoaded", () => {
   // Initial page load
   handleHashChange();
 });
+
+
+
+/*
+  --------------------------------------------------------------------------------------
+  Chamada a API para registrar um usuário no sistema
+  --------------------------------------------------------------------------------------
+*/
+
+const postUserData = async (uri, corpo) => {
+  const formData = new FormData();
+  formData.append('nome', corpo.nome)
+  formData.append('email', corpo.email)
+  formData.append('senha', corpo.senha)
+
+  try {
+    let url = URL_BASE + uri;
+    const response = await fetch(url, { method: 'post', body: formData });
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    const data = await response.json();
+    return data; // Return the parsed JSON data
+  } catch (error) {
+    console.error('Error:', error);
+    throw error; // Re-throw the error to be caught by the caller
+  }
+}
+
+/*
+  --------------------------------------------------------------------------------------
+  Registrar um usuário no sistema
+  --------------------------------------------------------------------------------------
+*/
+const cadastrarUsuario = () => {
+  const nome = document.getElementById('nome-usuario').value
+  const email = document.getElementById('email-usuario').value 
+  const senha = document.getElementById('senha-usuario').value
+
+  const closeEvent = new Event('closeModal')
+  
+  postUserData('cadastro', { nome: nome, email: email, senha: senha })
+  document.dispatchEvent(closeEvent)
+  alert("Salvo com sucesso!")
+}
+
+/*
+  --------------------------------------------------------------------------------------
+  Login de um usuário no sistema
+  --------------------------------------------------------------------------------------
+*/
+
+const login = async () => {
+  const formData = new FormData();
+  const email = document.getElementById('email-usuario').value 
+  const senha = document.getElementById('senha-usuario').value
+
+  formData.append('email', email)
+  formData.append('senha', senha)
+
+  const url = URL_BASE + 'login'
+
+  fetch(url, { method: 'post', body: formData })
+  .then(res => {
+    if (res.ok){
+      setTimeout(() => {
+        const closeEvent = new Event('closeModal');
+        document.dispatchEvent(closeEvent);
+      }, 500)
+    }
+    else{
+      res.json().then(data => alert('Erro: ' + data.message))
+    }
+  })
+  .catch(error => console.log('ERROR '+error))
+}
+
+
+/*
+  --------------------------------------------------------------------------------------
+  Chamada a API para registrar um usuário no sistema
+  --------------------------------------------------------------------------------------
+*/
+
+const getUserData = async (uri) => {
+  try {
+    let url = URL_BASE + uri;
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    const data = await response.json();
+    return data; // Return the parsed JSON data
+  } catch (error) {
+    console.error('Error:', error);
+    throw error; // Re-throw the error to be caught by the caller
+  }
+}
+
+/*
+  --------------------------------------------------------------------------------------
+  Criar a resposividade da sidebar
+  --------------------------------------------------------------------------------------
+*/
+
+const hamburguer = document.getElementById('toggle-btn')
+
+hamburguer.addEventListener("click", ()=> {
+    document.getElementById("sidebar").classList.toggle("expand")
+
+})
 
 
 /*

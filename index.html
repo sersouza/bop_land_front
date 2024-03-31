@@ -12,6 +12,54 @@
     </head>
 
     <body>
+        <!-- Modal -->
+        <div class="modal fade" id="loginModal" aria-hidden="true" aria-labelledby="loginModalLabel" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h1 class="modal-title fs-5" id="loginModalLabel">Login</h1>
+                </div>
+                <div class="modal-body">
+                    <div class="form-floating mb-3">
+                        <input type="email" class="form-control rounded-3" id="email-usuario" placeholder="nome@exemplo.com.br">
+                        <label for="email-usuario">Email</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="password" class="form-control rounded-3" id="senha-usuario" placeholder="Senha">
+                        <label for="senha-usuario">Senha</label>
+                    </div>
+                    <button onclick="login()" class="btn btn-dark">Submeter</button>
+                    <button class="btn btn-primary"  data-bs-target="#registroModal" data-bs-toggle="modal">Registrar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal fade" id="registroModal" aria-hidden="true" aria-labelledby="registroModalLabel" tabindex="-1"  data-bs-backdrop="static" data-bs-keyboard="false">
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h1 class="modal-title fs-5" id="registroModalLabel">Registre-se</h1>
+                </div>
+                <div class="modal-body">
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control rounded-3" id="nome-usuario" placeholder="nome">
+                        <label for="nome-usuario">Nome</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="email" class="form-control rounded-3" id="email-usuario" placeholder="nome@exemplo.com.br">
+                        <label for="email-usuario">Email</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="password" class="form-control rounded-3" id="senha-usuario" placeholder="Senha">
+                        <label for="senha-usuario">Senha</label>
+                    </div>
+                    <button onclick="cadastrarUsuario()" class="btn btn-dark">Submeter</button>
+                    <button class="btn btn-primary" data-bs-target="#loginModal" data-bs-toggle="modal">Logar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
         <div class="wrapper">
             <aside id="sidebar">
                 <div class="d-flex">
