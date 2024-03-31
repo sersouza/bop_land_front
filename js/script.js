@@ -109,6 +109,11 @@ document.addEventListener("DOMContentLoaded", () => {
     registroModal.hide();
   });
 
+  document.addEventListener('openLoginModal', () => {
+    loginModal.show();
+  });
+
+
   // router propriamente dito
   const renderPage = (route) => {
     switch (route) {
@@ -154,7 +159,6 @@ const hamburguer = document.getElementById('toggle-btn')
 
 hamburguer.addEventListener("click", () => {
   document.getElementById("sidebar").classList.toggle("expand")
-
 })
 
 
@@ -230,6 +234,22 @@ const login = () => {
       }
     })
     .catch(error => console.log('ERROR ' + error))
+}
+
+/*
+  --------------------------------------------------------------------------------------
+  Login de um usuário no sistema
+  --------------------------------------------------------------------------------------
+*/
+const logout = () => {
+
+  // checando se já existe um token salvo no localStorage
+  if (localStorage.getItem('token')) {
+    localStorage.removeItem('token')
+  }
+
+  const openEvent = new Event('openLoginModal');
+  document.dispatchEvent(openEvent);
 }
 
 /*
