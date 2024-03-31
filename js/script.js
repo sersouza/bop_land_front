@@ -88,14 +88,20 @@ const cadastrarView = `
 
 document.addEventListener("DOMContentLoaded", () => {
   const contentDiv = document.getElementById('content');
-  const modal = new bootstrap.Modal(document.getElementById("loginModal"));
+  const loginModal = new bootstrap.Modal(document.getElementById("loginModal"));
+  const registroModal = new bootstrap.Modal(document.getElementById("registroModal"));
   
   // deixando o modal de login ativo ao abrir a aplicação
-  modal.show()
+  loginModal.show()
 
   //criando um listener para fechar o modal após registrar-se ou logar
-  document.addEventListener('closeModal', () => {
-    modal.hide();
+  document.addEventListener('closeLoginModal', () => {
+    loginModal.hide();
+});
+
+  //criando um listener para fechar o modal após registrar-se ou logar
+  document.addEventListener('closeRegistroModal', () => {
+    registroModal.hide();
 });
 
   // router propriamente dito
@@ -129,48 +135,42 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
-
-/*
-  --------------------------------------------------------------------------------------
-  Chamada a API para registrar um usuário no sistema
-  --------------------------------------------------------------------------------------
-*/
-
-const postUserData = async (uri, corpo) => {
-  const formData = new FormData();
-  formData.append('nome', corpo.nome)
-  formData.append('email', corpo.email)
-  formData.append('senha', corpo.senha)
-
-  try {
-    let url = URL_BASE + uri;
-    const response = await fetch(url, { method: 'post', body: formData });
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-    const data = await response.json();
-    return data; // Return the parsed JSON data
-  } catch (error) {
-    console.error('Error:', error);
-    throw error; // Re-throw the error to be caught by the caller
-  }
-}
-
 /*
   --------------------------------------------------------------------------------------
   Registrar um usuário no sistema
   --------------------------------------------------------------------------------------
 */
 const cadastrarUsuario = () => {
-  const nome = document.getElementById('nome-usuario').value
-  const email = document.getElementById('email-usuario').value 
-  const senha = document.getElementById('senha-usuario').value
-
-  const closeEvent = new Event('closeModal')
+  const nome = document.getElementById('nome-usuario-registro').value
+  const email = document.getElementById('email-usuario-registro').value 
+  const senha = document.getElementById('senha-usuario-registro').value
   
-  postUserData('cadastro', { nome: nome, email: email, senha: senha })
-  document.dispatchEvent(closeEvent)
-  alert("Salvo com sucesso!")
+  if (nome.trim() === '' || email.trim() === '' || senha.trim() === '') {
+    alert("Por favor, preencha todos os campos");
+    return; // Exit the function early
+  }
+  
+  const formData = new FormData();
+  formData.append('nome', nome)
+  formData.append('email', email)
+  formData.append('senha', senha)
+
+  const url = URL_BASE + 'cadastro'
+
+  fetch(url, { method: 'post', body: formData })
+  .then(res => {
+    if (res.ok){
+      alert("Salvo com sucesso!")
+      setTimeout(() => {
+        const closeEvent = new Event('closeRegistroModal');
+        document.dispatchEvent(closeEvent);
+      }, 500)
+    }
+    else{
+      res.json().then(data => alert(data.message))
+    }
+  })
+  .catch(error => console.log('ERROR '+error))
 }
 
 /*
@@ -179,7 +179,7 @@ const cadastrarUsuario = () => {
   --------------------------------------------------------------------------------------
 */
 
-const login = async () => {
+const login = () => {
   const formData = new FormData();
   const email = document.getElementById('email-usuario').value 
   const senha = document.getElementById('senha-usuario').value
@@ -193,37 +193,15 @@ const login = async () => {
   .then(res => {
     if (res.ok){
       setTimeout(() => {
-        const closeEvent = new Event('closeModal');
+        const closeEvent = new Event('closeLoginModal');
         document.dispatchEvent(closeEvent);
       }, 500)
     }
     else{
-      res.json().then(data => alert('Erro: ' + data.message))
+      res.json().then(data => alert(data.message))
     }
   })
   .catch(error => console.log('ERROR '+error))
-}
-
-
-/*
-  --------------------------------------------------------------------------------------
-  Chamada a API para registrar um usuário no sistema
-  --------------------------------------------------------------------------------------
-*/
-
-const getUserData = async (uri) => {
-  try {
-    let url = URL_BASE + uri;
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-    const data = await response.json();
-    return data; // Return the parsed JSON data
-  } catch (error) {
-    console.error('Error:', error);
-    throw error; // Re-throw the error to be caught by the caller
-  }
 }
 
 /*
