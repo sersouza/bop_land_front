@@ -1,7 +1,6 @@
-const urlPageTitle = "BOP Land"
 const URL_BASE = 'http://127.0.0.1:5000/'
-let valvulasAceitas = []
-let preventoresAceitos = []
+let valvulasSelecionadas = []
+let preventoresSelecionados = []
 let targetValvulas
 let targetPreventores
 let sourceValvulas
@@ -45,57 +44,6 @@ const notFound = (termo) => {
   p.innerHTML = `<p> BOP com nome: <strong>${termo}</strong> não encontrado</p>`
 
   tableBody.appendChild(p)
-}
-
-/*
-  --------------------------------------------------------------------------------------
-  Função para salvar dados do backend via requisição POST
-  --------------------------------------------------------------------------------------
-*/
-
-const postData = async (uri, corpo) => {
-  const formData = new FormData();
-  formData.append('sonda', corpo.sonda)
-  corpo.valvulas.forEach(valvula => {
-    formData.append('valvulas', valvula);
-  })
-  corpo.preventores.forEach(preventor => {
-    formData.append('preventores', preventor);
-  })
-
-  try {
-    let url = URL_BASE + uri;
-    const response = await fetch(url, { method: 'post', body: formData });
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-    const data = await response.json();
-    return data; // Return the parsed JSON data
-  } catch (error) {
-    console.error('Error:', error);
-    throw error; // Re-throw the error to be caught by the caller
-  }
-}
-
-/*
-  --------------------------------------------------------------------------------------
-  Função para deletar um BOP pelo nome da sonda via método DELETE
-  --------------------------------------------------------------------------------------
-*/
-
-const delData = async (uri) => {
-  try {
-    let url = URL_BASE + uri;
-    const response = await fetch(url, { method: 'delete' });
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-    const data = await response.json();
-    return data; // Return the parsed JSON data
-  } catch (error) {
-    console.error('Error:', error);
-    throw error; // Re-throw the error to be caught by the caller
-  }
 }
 
 /*
@@ -173,7 +121,7 @@ const fetchDataAndPopulateTable = async (uri, termo) => {
   --------------------------------------------------------------------------------------
 */
 const buscarBOP = () => {
-  let sondaInput = document.getElementById("sonda-busca")
+  const sondaInput = document.getElementById("sonda-busca")
   const sonda = sondaInput.value
 
   if (sonda == '') {
@@ -237,7 +185,7 @@ const cadastrarBOP = async () => {
       draggedElement.classList.remove('bg-secondary')
       draggedElement.classList.add('bg-success')
       e.target.appendChild(draggedElement)
-      valvulasAceitas.push(sourceID)
+      valvulasSelecionadas.push(sourceID)
     }
     else {
       alert('Preventor só pode ir para caixa de preventores aceitos');
@@ -252,7 +200,7 @@ const cadastrarBOP = async () => {
       draggedElement.classList.remove('bg-secondary')
       draggedElement.classList.add('bg-success')
       e.target.appendChild(draggedElement)
-      preventoresAceitos.push(sourceID)
+      preventoresSelecionados.push(sourceID)
     }
     else {
       alert('Válvula só pode ir para caixa de válvulas aceitas');
@@ -282,8 +230,8 @@ const limpaCadastro = async () => {
   sourcePreventores = document.getElementById('source-preventores')
 
   // limpando variaveis globais
-  valvulasAceitas = []
-  preventoresAceitos = []
+  valvulasSelecionadas = []
+  preventoresSelecionados = []
 
   if (targetPreventores || targetValvulas) {
     //limpando os campos de target
@@ -322,13 +270,29 @@ const limpaCadastro = async () => {
 const salvarBOP = () => {
   const sondaInput = document.getElementById('sonda-cadastro')
   const sonda = sondaInput.value
+  const url = URL_BASE + 'bop'
 
   if (sonda == '') {
     alert("Digite um nome de sonda para prosseguir")
   }
   else {
-    postData('bop', { sonda: sonda, valvulas: valvulasAceitas, preventores: preventoresAceitos })
+    //populando o objeto ser enviado no corpo da requisição 
+      const body = new FormData()
+      body.append('sonda', sonda)
+      valvulasSelecionadas.forEach(valvula => {
+        body.append('valvulas', valvula)
+      })
+      preventoresSelecionados.forEach(preventor => {
+        body.append('preventores', preventor)
+      })
 
+      // enviando dados para api    
+      fetch(url, { method: 'post', body: body })
+      .catch (error => {
+        console.error('Error:', error);
+        throw error
+      })
+    
     //limpando as variaveis globais após o salvamento
     limpaCadastro()
 
@@ -344,12 +308,14 @@ const salvarBOP = () => {
   --------------------------------------------------------------------------------------
 */
 const deletaBOP = (sonda) => {
-  const uri = 'bop?sonda=' + sonda
+  const url = URL_BASE + 'bop?sonda=' + sonda
   const element = document.getElementById(sonda)
 
   if (confirm("Você tem certeza?")) {
-    delData(uri)
+    fetch(url, { method: 'delete' })
+    .catch(error => {throw error})
+
     alert("Removido!")
     element.remove()
+    }
   }
-}

@@ -1,3 +1,5 @@
+let sidebarExpandida = true
+
 /*
   --------------------------------------------------------------------------------------
   Router com hash utilizando javascript vanilla
@@ -8,6 +10,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const contentDiv = document.getElementById('content');
   const loginModal = new bootstrap.Modal(document.getElementById("loginModal"));
   const registroModal = new bootstrap.Modal(document.getElementById("registroModal"));
+
+  //deixando a sidebar expandida ao abrir a aplicação
+  document.getElementById("sidebar").classList.toggle("expand")
 
   // deixando o modal de login ativo ao abrir a aplicação
   loginModal.show()
@@ -38,17 +43,18 @@ document.addEventListener("DOMContentLoaded", () => {
   // router propriamente dito
   const renderPage = (route) => {
     switch (route) {
-      case '/':
-        contentDiv.innerHTML = homeView
+      case '/home':
+        contentDiv.innerHTML = perfilView
+        document.dispatchEvent(new Event('updatePerfilView'))
+        break
+      case '/listar-bop':
+        contentDiv.innerHTML = listarBOPView
         fetchDataAndPopulateTable('bops', '')
-        break;
-      case '/cadastrar':
-        contentDiv.innerHTML = cadastrarView
+        break
+      case '/cadastrar-bop':
+        contentDiv.innerHTML = cadastrarBOPView
         cadastrarBOP()
-        break;
-      case '/about':
-        contentDiv.innerHTML = '<h2>About Page</h2>';
-        break;
+        break
       default:
         contentDiv.innerHTML = perfilView
     }
@@ -73,5 +79,10 @@ document.addEventListener("DOMContentLoaded", () => {
 const hamburguer = document.getElementById('toggle-btn')
 
 hamburguer.addEventListener("click", () => {
-  document.getElementById("sidebar").classList.toggle("expand")
+  sidebarExpandida = !sidebarExpandida
+  if (sidebarExpandida){
+    document.getElementById("sidebar").classList.add("expand")
+  } else {
+    document.getElementById("sidebar").classList.remove("expand")
+  }
 })

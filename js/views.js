@@ -4,7 +4,7 @@
   --------------------------------------------------------------------------------------
 */
 
-const homeView = `
+const listarBOPView = `
 <div class="container-fluid">
   <h1>Lista de BOPs</h1>
   <section class="newItem">
@@ -33,7 +33,7 @@ const perfilView = `
   <div id="perfil-content"></div>
 `
 
-const cadastrarView = `
+const cadastrarBOPView = `
 <div class="container-fluid">
   <h1>Criar BOP</h1>
   <input class="mb-3" type="text" id="sonda-cadastro" placeholder="Digite a sonda:">
