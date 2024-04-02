@@ -11,6 +11,7 @@ const listarBOPView = `
     <input type="text" id="sonda-busca" placeholder="Digite a sonda:">
     <button onclick="buscarBOP()" class="addBtn">Buscar</button>
     <button onclick="listarBOP()" class="addBtn">Todos</button>
+    <button onclick="cadastrarBOP()" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample" aria-controls="offcanvasExample">Criar BOP</button>
   </section>
   <table id="data-table" class="table">
     <thead>
@@ -25,6 +26,51 @@ const listarBOPView = `
       <!-- Data will be inserted here dynamically -->
     </tbody>
   </table>
+  
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
+      <div class="offcanvas-header">
+      <h5 class="offcanvas-title" id="offcanvasExampleLabel">Criar BOP</h5>
+      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body">
+      <input class="mb-3" type="text" id="sonda-cadastro" placeholder="Digite a sonda:">
+      <div class="row gy-4">
+          <div class="col-6">
+          <div class="card">
+              <div class="card-header">
+              Válvulas disponíveis
+              </div>
+              <div id="source-valvulas" class="card-body"></div>
+          </div>
+          </div>
+          <div class="col-6">
+          <div class="card">
+              <div class="card-header">
+              Preventores disponíveis
+              </div>
+              <div id="source-preventores" class="card-body"></div>
+          </div>
+          </div>
+          <div class="col-6">
+          <div class="card">
+              <div class="card-header">
+              Válvulas selecionadas
+              </div>
+              <div id="target-valvulas" class="card-body"></div>
+          </div>
+          </div>
+          <div class="col-6">
+          <div class="card">
+              <div class="card-header">
+              Preventores selecionados
+              </div>
+              <div id="target-preventores" class="card-body"></div>
+          </div>
+          </div>
+          <button onclick="salvarBOP()" class="mt-3" data-bs-dismiss="offcanvas" >Salvar</button>
+      </div>
+      </div>
+  </div>
 </div>
 `
 

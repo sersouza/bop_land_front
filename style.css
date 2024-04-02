@@ -147,3 +147,7 @@ a.sidebar-link:hover{
     min-width: 200px;
     min-height: 200px;
 }
+
+.offcanvas{
+    --bs-offcanvas-width:800px;
+}

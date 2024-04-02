@@ -232,11 +232,19 @@ const limpaCadastro = async () => {
   // limpando variaveis globais
   valvulasSelecionadas = []
   preventoresSelecionados = []
+  valvulas = []
+  preventores = []
 
   if (targetPreventores || targetValvulas) {
     //limpando os campos de target
     removeAllChildNodes(targetPreventores)
     removeAllChildNodes(targetValvulas)
+  }
+
+  if (sourcePreventores || sourceValvulas) {
+    //limpando os campos de source
+    removeAllChildNodes(sourcePreventores)
+    removeAllChildNodes(sourceValvulas)
   }
 
   //trazendo do backend a lista de todas as válvulas disponíveis no banco
@@ -277,28 +285,31 @@ const salvarBOP = () => {
   }
   else {
     //populando o objeto ser enviado no corpo da requisição 
-      const body = new FormData()
-      body.append('sonda', sonda)
-      valvulasSelecionadas.forEach(valvula => {
-        body.append('valvulas', valvula)
-      })
-      preventoresSelecionados.forEach(preventor => {
-        body.append('preventores', preventor)
-      })
+    const body = new FormData()
+    body.append('sonda', sonda)
+    valvulasSelecionadas.forEach(valvula => {
+      body.append('valvulas', valvula)
+    })
+    preventoresSelecionados.forEach(preventor => {
+      body.append('preventores', preventor)
+    })
 
-      // enviando dados para api    
-      fetch(url, { method: 'post', body: body })
-      .catch (error => {
-        console.error('Error:', error);
-        throw error
-      })
-    
-    //limpando as variaveis globais após o salvamento
-    limpaCadastro()
+    // enviando dados para api    
+    fetch(url, { method: 'post', body: body })
+    .catch (error => {
+      console.error('Error:', error);
+      throw error
+    })
 
     //limpando o campo de input de sonda
     sondaInput.value = ''
     alert("Salvo com sucesso!")
+
+    setTimeout(() => {
+      //atualizando a lista de bop com o item recém criado
+      document.dispatchEvent(new Event('updateListaBOP'))
+    }, 1000)
+
   }
 }
 
@@ -314,8 +325,6 @@ const deletaBOP = (sonda) => {
   if (confirm("Você tem certeza?")) {
     fetch(url, { method: 'delete' })
     .catch(error => {throw error})
-
-    alert("Removido!")
     element.remove()
     }
   }
