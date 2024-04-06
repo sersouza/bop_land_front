@@ -1,51 +1,183 @@
 const URL_BASE = 'http://127.0.0.1:5000/'
-let valvulasSelecionadas = []
-let preventoresSelecionados = []
-let targetValvulas
-let targetPreventores
-let sourceValvulas
-let sourcePreventores
-let preventores
-let valvulas
+
+// Definindo a classe BOP
+class BOP{
+  constructor(valvulasSelecionadas=[], preventoresSelecionados=[]) {
+    this.valvulasSelecionadas = valvulasSelecionadas
+    this.preventoresSelecionados = preventoresSelecionados
+  }
+
+  // Example method to set selected valves
+  addValvulaSelecionada(valvula) {
+    this.valvulasSelecionadas.push(valvula)
+  }
+
+  // Example method to set selected preventers
+  addPreventorSelecionado(preventor) {
+    this.preventoresSelecionados.push(preventor)
+  }
+
+  // Example method to set selected valves
+  getValvulasSelecionadas() {
+    return this.valvulasSelecionadas
+  }
+
+  // Example method to set selected preventers
+  getPreventoresSelecionados() {
+    return this.preventoresSelecionados
+  }
+
+  limparPreventoresSelecionados(){
+    this.preventoresSelecionados = []
+  }
+
+  limparValvulasSelecionadas(){
+    this.valvulasSelecionadas = []
+  }
+}
+
+// instanciado um objeto de BOP
+const bop = new BOP()
 
 /*
   --------------------------------------------------------------------------------------
-  Função para obter dados do backend via requisição GET
+  Função para buscar e mostrar o BOP a partir de um termo
   --------------------------------------------------------------------------------------
 */
+const buscarBOP = () => {
+  const sondaInput = document.getElementById("sonda-busca")
+  const sonda = sondaInput.value
 
-const getData = async (uri) => {
-  let url = URL_BASE + uri;
-  try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-    const data = await response.json();
-    return data; // Return the parsed JSON data
-  } catch (error) {
-    console.error('Error:', error);
-    throw error; // Re-throw the error to be caught by the caller
+  if (sonda == '') {
+    alert("Digite um nome válido")
+  }
+  else {
+    listarBOP(sonda)
   }
 }
 
 /*
   --------------------------------------------------------------------------------------
-  Função para inserir mensagem caso não tenham dados
+  Função para obter a listar todos os BOPs existentes
   --------------------------------------------------------------------------------------
 */
-const notFound = (termo) => {
-  const tableBody = document.getElementById('table-body');
+const listarBOP = async (sonda = null) => {
+  if (sonda) {
+    uri = 'bop/?sonda=' + sonda
+  }
+  else {
+    uri = 'bop'
+  }
+  const url = URL_BASE + uri
 
-  // Clear existing rows
-  tableBody.innerHTML = '';
+  try {
+    const response = await fetch(url, {
+      method: 'get'
+    });
 
-  const p = document.createElement('p')
-  p.innerHTML = `<p> BOP com nome: <strong>${termo}</strong> não encontrado</p>`
-
-  tableBody.appendChild(p)
+    if (response.ok) {
+      const data = await response.json();
+      populateTable(data)
+      const sondaInput = document.getElementById("sonda-busca")
+      sondaInput.value = ''
+    } else {
+      const data = await response.json();
+      alert(data.message);
+    }
+  } catch (error) {
+    console.log('ERROR ' + error);
+  }
 }
 
+/*
+  --------------------------------------------------------------------------------------
+  Função para salvar os dados do BOP inserido na view cadastrar BOP
+  --------------------------------------------------------------------------------------
+*/
+const salvarBOP = async () => {
+  const sondaInput = document.getElementById('sonda-cadastro')
+  const sonda = sondaInput.value
+  const url = URL_BASE + 'bop'
+
+  if (sonda == '') {
+    alert("Digite um nome de sonda para prosseguir")
+  }
+  else {
+    valvulasSelecionadas = bop.getValvulasSelecionadas()
+    preventoresSelecionados = bop.getPreventoresSelecionados()
+    console.log("valvulas selecionadas antes de salvar")
+    console.log(valvulasSelecionadas)
+    //populando o objeto ser enviado no corpo da requisição 
+    const body = new FormData()
+    body.append('sonda', sonda)
+    valvulasSelecionadas.forEach(valvula => {
+      body.append('valvulas', valvula)
+    })
+    preventoresSelecionados.forEach(preventor => {
+      body.append('preventores', preventor)
+    })
+
+    try {
+      const response = await fetch(url, {
+        method: 'post',
+        body: body
+      });
+
+      if (response.ok) {
+        //limpando o campo de input de sonda
+        sondaInput.value = ''
+        alert("Salvo com sucesso!")
+
+        setTimeout(() => {
+          //atualizando a lista de bop com o item recém criado
+          document.dispatchEvent(new Event('updateListaBOP'))
+        }, 1000)
+      } else {
+        const data = await response.json();
+        alert(data.message);
+      }
+    } catch (error) {
+      console.log('ERROR ' + error);
+    }
+  }
+}
+
+/*
+  --------------------------------------------------------------------------------------
+  Função para deletar um BOP a partir do nome da sonda e removê-lo da tela
+  --------------------------------------------------------------------------------------
+*/
+const deletaBOP = async (sonda) => {
+  const url = URL_BASE + 'bop/?sonda=' + sonda
+  const element = document.getElementById(sonda)
+
+  if (confirm("Quer realmente deletar?")) {
+    try {
+      const response = await fetch(url, {
+        method: 'delete'
+      });
+
+      if (response.ok) {
+        //limpando o campo de input de sonda
+        element.remove()
+
+      } else {
+        const data = await response.json();
+        alert(data.message);
+      }
+    } catch (error) {
+      console.log('ERROR ' + error);
+    }
+  }
+}
+
+/* 
+  --------------------------------------------------------------------------------------
+  --------------------------------------------------------------------------------------
+  Funcões auxiliares do BOP
+  --------------------------------------------------------------------------------------
+  --------------------------------------------------------------------------------------
+*/
 /*
   --------------------------------------------------------------------------------------
   Função que injeta na tabela os dados de BOP
@@ -65,7 +197,7 @@ const populateTable = (data) => {
   tableBody.innerHTML = '';
 
   // Iterate over the data and create table rows
-  data.bops.map(item => {
+  data?.content?.map(item => {
     const row = document.createElement('tr')
     row.setAttribute("id", item.sonda)
     const valveRows = Math.ceil(item.valvulas.length / 5)
@@ -98,68 +230,54 @@ const populateTable = (data) => {
   )
 }
 
-/*
-  --------------------------------------------------------------------------------------
-  Função que combina os  dados vindos da API e os populam como uma tabela no frontend
-  --------------------------------------------------------------------------------------
-*/
-
-const fetchDataAndPopulateTable = async (uri, termo) => {
-  try {
-    const data = await getData(uri); // Wait for the data to be fetched
-    populateTable(data); // Populate the table with the fetched data
-  } catch (error) {
-    console.error('Error fetching data:', error);
-    notFound(termo)
-  }
-}
-
-
-/*
-  --------------------------------------------------------------------------------------
-  Função para buscar e mostrar o BOP a partir de um termo
-  --------------------------------------------------------------------------------------
-*/
-const buscarBOP = () => {
-  const sondaInput = document.getElementById("sonda-busca")
-  const sonda = sondaInput.value
-
-  if (sonda == '') {
-    alert("Digite um nome válido")
-  }
-  else {
-    const uri = 'bop?sonda=' + sonda
-    fetchDataAndPopulateTable(uri, sonda)
-    //limpa o campo sonda para uma nova busca
-    sondaInput.value = ''
-  }
-
-}
-
-/*
-  --------------------------------------------------------------------------------------
-  Função para obter a listar todos os BOPs existentes
-  --------------------------------------------------------------------------------------
-*/
-
-const listarBOP = () => {
-  fetchDataAndPopulateTable('bops', '')
-  //limpa o campo de busca, caso haja algo escrito
-  const sondaInput = document.getElementById("sonda-busca")
-  sondaInput.value = ''
-}
-
 
 /*
   --------------------------------------------------------------------------------------
   Funcão que permite criar um novo BOP a partir dos elementos básicos usando drag and drop
   --------------------------------------------------------------------------------------
 */
-
 const cadastrarBOP = async () => {
-  limpaCadastro()
+  //limpando os atributos selecionados antes de iniciar o cadastro
+  bop.limparPreventoresSelecionados()
+  bop.limparValvulasSelecionadas()
+
   targetValvulas = document.getElementById('target-valvulas')
   targetPreventores = document.getElementById('target-preventores')
+  sourceValvulas = document.getElementById('source-valvulas')
+  sourcePreventores = document.getElementById('source-preventores')
+
+  //trazendo do backend a lista de todas as válvulas disponíveis no banco
+  valvulas = await getData('valvulas')
+  //trazendo do backend a lista de todas os preventores disponíveis no banco
+  preventores = await getData('preventores')
+
+  //limpando os campos de target
+  if (targetPreventores || targetValvulas) {
+    removeAllChildNodes(targetPreventores)
+    removeAllChildNodes(targetValvulas)
+  }
+
+  //limpando os campos de source
+  if (sourcePreventores || sourceValvulas) {
+    removeAllChildNodes(sourcePreventores)
+    removeAllChildNodes(sourceValvulas)
+  }
+
+  //popular as valvulas disponiveis
+  valvulas?.map(v => {
+    const span = document.createElement('span')
+    span.innerHTML = `<span id=${v} class="badge bg-dark-subtle border border-dark-subtle text-dark-emphasis rounded-pill" draggable="true">${v}</span>`
+
+    sourceValvulas.appendChild(span)
+  })
+
+  //popular os preventores disponiveis
+  preventores?.map(p => {
+    const span = document.createElement('span')
+    span.innerHTML = `<span id=${p} class="badge bg-dark-subtle border border-dark-subtle text-dark-emphasis rounded-pill" draggable="true">${p}</span>`
+
+    sourcePreventores.appendChild(span)
+  })
 
   sourceValvulas.addEventListener('dragstart', (e) => {
     e.dataTransfer.setData('text/plain', e.target.id)
@@ -178,14 +296,16 @@ const cadastrarBOP = async () => {
   })
 
   targetValvulas.addEventListener('drop', (e) => {
+    console.log("evento de target valvula rodando")
     e.preventDefault()
+    e.stopImmediatePropagation()
     const sourceID = e.dataTransfer.getData('text/plain')
     const draggedElement = document.getElementById(sourceID);
     if (valvulas.includes(draggedElement.id)) {
       draggedElement.classList.remove('bg-secondary')
       draggedElement.classList.add('bg-success')
       e.target.appendChild(draggedElement)
-      valvulasSelecionadas.push(sourceID)
+      bop.addValvulaSelecionada(sourceID)
     }
     else {
       alert('Preventor só pode ir para caixa de preventores aceitos');
@@ -194,13 +314,14 @@ const cadastrarBOP = async () => {
 
   targetPreventores.addEventListener('drop', (e) => {
     e.preventDefault()
+    e.stopImmediatePropagation()
     const sourceID = e.dataTransfer.getData('text/plain')
     const draggedElement = document.getElementById(sourceID);
     if (preventores.includes(draggedElement.id)) {
       draggedElement.classList.remove('bg-secondary')
       draggedElement.classList.add('bg-success')
       e.target.appendChild(draggedElement)
-      preventoresSelecionados.push(sourceID)
+      bop.addPreventorSelecionado(sourceID)
     }
     else {
       alert('Válvula só pode ir para caixa de válvulas aceitas');
@@ -221,110 +342,20 @@ const removeAllChildNodes = (parent) => {
 
 /*
   --------------------------------------------------------------------------------------
-  Função para limpar área de cadastro do BOP
+  Função para obter dados do backend via requisição GET (válvulas e preventores)
   --------------------------------------------------------------------------------------
 */
-
-const limpaCadastro = async () => {
-  sourceValvulas = document.getElementById('source-valvulas')
-  sourcePreventores = document.getElementById('source-preventores')
-
-  // limpando variaveis globais
-  valvulasSelecionadas = []
-  preventoresSelecionados = []
-  valvulas = []
-  preventores = []
-
-  if (targetPreventores || targetValvulas) {
-    //limpando os campos de target
-    removeAllChildNodes(targetPreventores)
-    removeAllChildNodes(targetValvulas)
-  }
-
-  if (sourcePreventores || sourceValvulas) {
-    //limpando os campos de source
-    removeAllChildNodes(sourcePreventores)
-    removeAllChildNodes(sourceValvulas)
-  }
-
-  //trazendo do backend a lista de todas as válvulas disponíveis no banco
-  valvulas = await getData('valvulas')
-  //trazendo do backend a lista de todas os preventores disponíveis no banco
-  preventores = await getData('preventores')
-
-  //popular as valvulas disponiveis
-  valvulas.map(v => {
-    const span = document.createElement('span')
-    span.innerHTML = `<span id=${v} class="badge bg-dark-subtle border border-dark-subtle text-dark-emphasis rounded-pill" draggable="true">${v}</span>`
-
-    sourceValvulas.appendChild(span)
-  })
-
-  //popular os preventores disponiveis
-  preventores.map(p => {
-    const span = document.createElement('span')
-    span.innerHTML = `<span id=${p} class="badge bg-dark-subtle border border-dark-subtle text-dark-emphasis rounded-pill" draggable="true">${p}</span>`
-
-    sourcePreventores.appendChild(span)
-  })
-}
-
-
-/*
-  --------------------------------------------------------------------------------------
-  Função para salvar os dados do BOP inserido na view cadastrar BOP
-  --------------------------------------------------------------------------------------
-*/
-const salvarBOP = () => {
-  const sondaInput = document.getElementById('sonda-cadastro')
-  const sonda = sondaInput.value
-  const url = URL_BASE + 'bop'
-
-  if (sonda == '') {
-    alert("Digite um nome de sonda para prosseguir")
-  }
-  else {
-    //populando o objeto ser enviado no corpo da requisição 
-    const body = new FormData()
-    body.append('sonda', sonda)
-    valvulasSelecionadas.forEach(valvula => {
-      body.append('valvulas', valvula)
-    })
-    preventoresSelecionados.forEach(preventor => {
-      body.append('preventores', preventor)
-    })
-
-    // enviando dados para api    
-    fetch(url, { method: 'post', body: body })
-    .catch (error => {
-      console.error('Error:', error);
-      throw error
-    })
-
-    //limpando o campo de input de sonda
-    sondaInput.value = ''
-    alert("Salvo com sucesso!")
-
-    setTimeout(() => {
-      //atualizando a lista de bop com o item recém criado
-      document.dispatchEvent(new Event('updateListaBOP'))
-    }, 1000)
-
-  }
-}
-
-/*
-  --------------------------------------------------------------------------------------
-  Função para deletar um BOP a partir do nome da sonda e removê-lo da tela
-  --------------------------------------------------------------------------------------
-*/
-const deletaBOP = (sonda) => {
-  const url = URL_BASE + 'bop?sonda=' + sonda
-  const element = document.getElementById(sonda)
-
-  if (confirm("Você tem certeza?")) {
-    fetch(url, { method: 'delete' })
-    .catch(error => {throw error})
-    element.remove()
+const getData = async (uri) => {
+  let url = URL_BASE + uri;
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
     }
+    const data = await response.json();
+    return data; // Return the parsed JSON data
+  } catch (error) {
+    console.error('Error:', error);
+    throw error; // Re-throw the error to be caught by the caller
   }
+}

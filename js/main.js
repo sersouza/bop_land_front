@@ -54,7 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
         break
       case '/listar-bop':
         contentDiv.innerHTML = listarBOPView
-        fetchDataAndPopulateTable('bops', '')
+        listarBOP()
         break
       default:
         contentDiv.innerHTML = perfilView

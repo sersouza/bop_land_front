@@ -18,7 +18,7 @@ const cadastrarUsuario = () => {
   formData.append('email', email)
   formData.append('senha', senha)
 
-  const url = URL_BASE + 'cadastro'
+  const url = URL_BASE + 'auth/register'
 
   fetch(url, { method: 'post', body: formData })
     .then(res => {
@@ -49,29 +49,60 @@ const login = async () => {
   formData.append('email', email)
   formData.append('senha', senha)
 
-  const url = URL_BASE + 'login'
+  const url = URL_BASE + 'auth/login'
 
   // checando se já existe um token salvo no localStorage
   if (localStorage.getItem('token')) {
     localStorage.removeItem('token')
   }
 
-  fetch(url, { method: 'post', body: formData })
-    .then(res => {
-      if (res.ok) {
-        res.json().then(data => localStorage.setItem('token', data.access_token))
-        setTimeout(() => {
-          const closeEvent = new Event('closeLoginModal');
-          const updateEvent = new Event('updatePerfilView');
-          document.dispatchEvent(updateEvent);
-          document.dispatchEvent(closeEvent);
-        }, 500)
-      }
-      else {
-        res.json().then(data => alert(data.message))
-      }
-    })
-    .catch(error => console.log('ERROR ' + error))
+  try {
+    const response = await fetch(url, {
+      method: 'post',
+      body: formData
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      localStorage.setItem('token', data.access_token);
+      await delay(500);
+      dispatchEvents();
+    } else {
+      const data = await response.json();
+      alert(data.message);
+    }
+  } catch (error) {
+    console.log('ERROR ' + error);
+  }
+
+  // fetch(url, { method: 'post', body: formData })
+  //   .then(res => {
+  //     if (res.ok) {
+  //       res.json().then(data => localStorage.setItem('token', data.access_token))
+  //       setTimeout(() => {
+  //         const closeEvent = new Event('closeLoginModal');
+  //         const updateEvent = new Event('updatePerfilView');
+  //         document.dispatchEvent(updateEvent);
+  //         document.dispatchEvent(closeEvent);
+  //       }, 500)
+  //     }
+  //     else {
+  //       res.json().then(data => alert(data.message))
+  //     }
+  //   })
+  //   .catch(error => console.log('ERROR ' + error))
+}
+
+/* utils*/
+const delay = (ms) => {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+const dispatchEvents = () => {
+  const closeEvent = new Event('closeLoginModal');
+  const updateEvent = new Event('updatePerfilView');
+  document.dispatchEvent(updateEvent);
+  document.dispatchEvent(closeEvent);
 }
 
 /*
@@ -99,7 +130,7 @@ const logout = () => {
   --------------------------------------------------------------------------------------
 */
 const updatePerfilView = async () => {
-  const url = URL_BASE + 'usuario'
+  const url = URL_BASE + 'auth/'
 
   const user = await fetch(url, {
     headers: {
