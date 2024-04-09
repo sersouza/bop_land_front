@@ -53,7 +53,45 @@ const buscarBOP = () => {
     alert("Digite um nome válido")
   }
   else {
-    listarBOP(sonda)
+    listarBOP(1, sonda)
+  }
+}
+
+/*
+
+Novo litar BOP c paginação
+
+ */
+
+// Function to fetch data and update table
+function fetchData(page) {
+  fetch(`${URL_BASE}bop/?page=${page}&per_page=3`, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }})
+    .then(response => response.json())
+    .then(data => {newPopulateTable(data)})
+    .catch(error => console.error('Error fetching data:', error));
+}
+
+// Function to update pagination controls
+function updatePagination(data) {
+  const paginationContainer = document.getElementById('page-navegation');
+  paginationContainer.innerHTML = '';
+  const totalPages = data.total_pages;
+  const currentPage = data.current_page;
+  const hasPrev = data.has_prev;
+  const hasNext = data.has_next;
+
+  if (hasPrev) {
+    paginationContainer.innerHTML += `<li class="page-item"><a class="page-link" onclick="fetchData(${currentPage - 1})">Previous</a></li>`;
+  }
+  for (let i = 1; i <= totalPages; i++) {
+    paginationContainer.innerHTML += `<li class="page-item ${i === currentPage ? 'active' : ''}"><a class="page-link" onclick="fetchData(${i})">${i}</a></li>`;
+  }
+  if (hasNext) {
+    paginationContainer.innerHTML += `<li class="page-item"><a class="page-link" onclick="fetchData(${currentPage + 1})">Next</a></li>`;
   }
 }
 
@@ -62,12 +100,12 @@ const buscarBOP = () => {
   Função para obter a listar todos os BOPs existentes
   --------------------------------------------------------------------------------------
 */
-const listarBOP = async (sonda = null) => {
+const listarBOP = async (page = 1, sonda = null) => {
   if (sonda) {
-    uri = 'bop/?sonda=' + sonda
+    uri = `bop/?sonda=${sonda}&page=2&per_page=4`
   }
   else {
-    uri = 'bop/'
+    uri = `bop/?page=${page}&per_page=3`
   }
   const url = URL_BASE + uri
 
@@ -81,7 +119,7 @@ const listarBOP = async (sonda = null) => {
 
     if (response.ok) {
       const data = await response.json();
-      populateTable(data)
+      newPopulateTable(data)
       const sondaInput = document.getElementById("sonda-busca")
       sondaInput.value = ''
     } else {
@@ -189,6 +227,12 @@ const deletaBOP = async (sonda) => {
   --------------------------------------------------------------------------------------
   --------------------------------------------------------------------------------------
 */
+
+const trashSymbol = (sonda) => {
+  return `<button onclick="deletaBOP('${sonda}')" class="addBtn"><span style="font-size: 1em; color: Tomato;">
+  <i class="lni lni-trash-can"></i>
+   </span></button>    
+`}
 /*
   --------------------------------------------------------------------------------------
   Função que injeta na tabela os dados de BOP
@@ -239,6 +283,52 @@ const populateTable = (data) => {
     tableBody.appendChild(row)
   }
   )
+}
+
+/*
+  --------------------------------------------------------------------------------------
+  Função que injeta na tabela os dados de BOP
+  --------------------------------------------------------------------------------------
+*/
+const newPopulateTable = (data) => {
+   // Clear previous table data
+   const tableBody = document.getElementById('table-body');
+   tableBody.innerHTML = '';
+
+   // Insert new table data
+   data.items.content.forEach(item => {
+     const row = document.createElement('tr')
+     row.setAttribute("id", item.sonda)
+     const valveRows = Math.ceil(item.valvulas.length / 5)
+     const preventorRows = Math.ceil(item.preventores.length / 5)
+     row.innerHTML = `
+           <td class="col-md-2">${item.sonda}</td>
+           <td class="col-md-6">
+             <table>
+                 <tbody>
+                 ${Array.from({ length: valveRows }, (_, i) => i).map(i => `
+                     <tr>
+                     ${item.valvulas.slice(i * 5, (i + 1) * 5).map(v => `<td scope="col"><span class="badge bg-dark-subtle border border-dark-subtle text-dark-emphasis rounded-pill">${v}</span></td>`).join('')}
+                     </tr>`).join('')}
+                 </tbody>
+             </table>
+           </td>
+           <td class="col-md-6">
+             <table>
+                 <tbody>
+                 ${Array.from({ length: preventorRows }, (_, i) => i).map(i => `
+                     <tr>
+                     ${item.preventores.slice(i * 5, (i + 1) * 5).map(p => `<td scope="col"><span class="badge bg-dark-subtle border border-dark-subtle text-dark-emphasis rounded-pill">${p}</span></td>`).join('')}
+                     </tr>`).join('')}
+                 </tbody>
+             </table>
+         <td>${trashSymbol(item.sonda)}</td>
+         `
+         tableBody.appendChild(row)
+   });
+
+   // Update pagination controls
+   updatePagination(data);
 }
 
 
