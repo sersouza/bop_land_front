@@ -74,23 +74,6 @@ const login = async () => {
   } catch (error) {
     console.log('ERROR ' + error);
   }
-
-  // fetch(url, { method: 'post', body: formData })
-  //   .then(res => {
-  //     if (res.ok) {
-  //       res.json().then(data => localStorage.setItem('token', data.access_token))
-  //       setTimeout(() => {
-  //         const closeEvent = new Event('closeLoginModal');
-  //         const updateEvent = new Event('updatePerfilView');
-  //         document.dispatchEvent(updateEvent);
-  //         document.dispatchEvent(closeEvent);
-  //       }, 500)
-  //     }
-  //     else {
-  //       res.json().then(data => alert(data.message))
-  //     }
-  //   })
-  //   .catch(error => console.log('ERROR ' + error))
 }
 
 /* utils*/
@@ -130,7 +113,7 @@ const logout = () => {
   --------------------------------------------------------------------------------------
 */
 const updatePerfilView = async () => {
-  const url = URL_BASE + 'auth/'
+  const url = URL_BASE + 'auth/quemeusou'
 
   const user = await fetch(url, {
     headers: {

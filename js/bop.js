@@ -1,8 +1,9 @@
-const URL_BASE = 'http://127.0.0.1:5000/'
+// const URL_BASE = 'http://127.0.0.1:5000/'
+const URL_BASE = 'http://localhost:5000/'
 
 // Definindo a classe BOP
-class BOP{
-  constructor(valvulasSelecionadas=[], preventoresSelecionados=[]) {
+class BOP {
+  constructor(valvulasSelecionadas = [], preventoresSelecionados = []) {
     this.valvulasSelecionadas = valvulasSelecionadas
     this.preventoresSelecionados = preventoresSelecionados
   }
@@ -27,11 +28,11 @@ class BOP{
     return this.preventoresSelecionados
   }
 
-  limparPreventoresSelecionados(){
+  limparPreventoresSelecionados() {
     this.preventoresSelecionados = []
   }
 
-  limparValvulasSelecionadas(){
+  limparValvulasSelecionadas() {
     this.valvulasSelecionadas = []
   }
 }
@@ -66,13 +67,16 @@ const listarBOP = async (sonda = null) => {
     uri = 'bop/?sonda=' + sonda
   }
   else {
-    uri = 'bop'
+    uri = 'bop/'
   }
   const url = URL_BASE + uri
 
   try {
     const response = await fetch(url, {
-      method: 'get'
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
     });
 
     if (response.ok) {
@@ -97,7 +101,7 @@ const listarBOP = async (sonda = null) => {
 const salvarBOP = async () => {
   const sondaInput = document.getElementById('sonda-cadastro')
   const sonda = sondaInput.value
-  const url = URL_BASE + 'bop'
+  const url = URL_BASE + 'bop/'
 
   if (sonda == '') {
     alert("Digite um nome de sonda para prosseguir")
@@ -120,7 +124,10 @@ const salvarBOP = async () => {
     try {
       const response = await fetch(url, {
         method: 'post',
-        body: body
+        body: body,
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
       });
 
       if (response.ok) {
@@ -154,7 +161,11 @@ const deletaBOP = async (sonda) => {
   if (confirm("Quer realmente deletar?")) {
     try {
       const response = await fetch(url, {
-        method: 'delete'
+        method: 'delete',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
       });
 
       if (response.ok) {
@@ -348,7 +359,12 @@ const removeAllChildNodes = (parent) => {
 const getData = async (uri) => {
   let url = URL_BASE + uri;
   try {
-    const response = await fetch(url);
+    const response = await fetch(url, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    });
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
