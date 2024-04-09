@@ -30,7 +30,7 @@ const cadastrarUsuario = () => {
         }, 500)
       }
       else {
-        res.json().then(data => alert(data.message))
+        res.json().then(data => alert(data.mensagem))
       }
     })
     .catch(error => console.log('ERROR ' + error))
@@ -69,7 +69,7 @@ const login = async () => {
       dispatchEvents();
     } else {
       const data = await response.json();
-      alert(data.message);
+      alert(data.mensagem);
     }
   } catch (error) {
     console.log('ERROR ' + error);

@@ -86,7 +86,7 @@ const listarBOP = async (sonda = null) => {
       sondaInput.value = ''
     } else {
       const data = await response.json();
-      alert(data.message);
+      alert(data.mensagem);
     }
   } catch (error) {
     console.log('ERROR ' + error);
@@ -141,7 +141,7 @@ const salvarBOP = async () => {
         }, 1000)
       } else {
         const data = await response.json();
-        alert(data.message);
+        alert(data.mensagem);
       }
     } catch (error) {
       console.log('ERROR ' + error);
@@ -174,7 +174,7 @@ const deletaBOP = async (sonda) => {
 
       } else {
         const data = await response.json();
-        alert(data.message);
+        alert(data.mensagem);
       }
     } catch (error) {
       console.log('ERROR ' + error);
