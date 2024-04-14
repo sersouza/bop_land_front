@@ -1,3 +1,5 @@
+const SERVIDOR_FORA = "Servidor indisponível. Para utilizar esta página, é essencial que o backend esteja funcionando corretamente."
+
 /*
   --------------------------------------------------------------------------------------
   Registrar um usuário no sistema
@@ -33,7 +35,10 @@ const cadastrarUsuario = () => {
         res.json().then(data => alert(data.mensagem))
       }
     })
-    .catch(error => console.log('ERROR ' + error))
+    .catch(error => {
+      console.log('ERROR ' + error)
+      alert(SERVIDOR_FORA)
+    })
 }
 
 /*
@@ -73,6 +78,7 @@ const login = async () => {
     }
   } catch (error) {
     console.log('ERROR ' + error);
+    alert(SERVIDOR_FORA)
   }
 }
 
@@ -130,10 +136,10 @@ const updatePerfilView = async () => {
   // Clear existing data
   content.innerHTML = ''
 
-  if (user.msg==="Not enough segments"){
+  if (user.msg === "Not enough segments") {
     content.innerHTML = `<h1>Logue e descubra o mundo!!!!!!</h1>`
   }
-  else{
+  else {
     content.innerHTML = `<h1>Olá, ${user.nome}!!!</h1>`
   }
 }
