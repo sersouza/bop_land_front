@@ -29,7 +29,7 @@ const listarBOPView = `
     </table>
   </div>
   <nav aria-label="Page navigation example" >
-  <ul class="pagination" id="page-navegation"></ul>
+  <ul class="pagination pagination-sm" id="page-navegation"></ul>
 </nav>
   
   <div class="offcanvas offcanvas-end" tabindex="-1" id="cadastrarBOPSideBar" aria-labelledby="cadastrarBOPSideBarLabel">

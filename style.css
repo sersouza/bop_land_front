@@ -151,3 +151,9 @@ a.sidebar-link:hover{
 .offcanvas{
     --bs-offcanvas-width:800px;
 }
+
+.pagination{
+    --bs-pagination-color: #6c757d;
+    --bs-pagination-active-bg: #6c757d;
+    --bs-pagination-active-border-color: #6c757d; 
+}

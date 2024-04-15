@@ -85,13 +85,13 @@ function updatePagination(data) {
   const hasNext = data.has_next;
 
   if (hasPrev) {
-    paginationContainer.innerHTML += `<li class="page-item"><a class="page-link" onclick="fetchData(${currentPage - 1})">Previous</a></li>`;
+    paginationContainer.innerHTML += `<li class="page-item"><a class="page-link" onclick="fetchData(${currentPage - 1})">Anterior</a></li>`;
   }
   for (let i = 1; i <= totalPages; i++) {
     paginationContainer.innerHTML += `<li class="page-item ${i === currentPage ? 'active' : ''}"><a class="page-link" onclick="fetchData(${i})">${i}</a></li>`;
   }
   if (hasNext) {
-    paginationContainer.innerHTML += `<li class="page-item"><a class="page-link" onclick="fetchData(${currentPage + 1})">Next</a></li>`;
+    paginationContainer.innerHTML += `<li class="page-item"><a class="page-link" onclick="fetchData(${currentPage + 1})">Próximo</a></li>`;
   }
 }
 

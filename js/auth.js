@@ -96,11 +96,64 @@ const dispatchEvents = () => {
 
 /*
   --------------------------------------------------------------------------------------
+  Método para decodificar o jwt token sem uso de bibliotecas externas
+  --------------------------------------------------------------------------------------
+*/
+// Function to convert base64url encoded string to base64 encoded string
+const base64UrlToBase64 = (base64Url) => {
+  // Replace URL-safe characters with regular base64 characters
+  base64Url = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+
+  // Pad the base64Url string to ensure it has a length multiple of 4
+  while (base64Url.length % 4 !== 0) {
+      base64Url += '=';
+  }
+
+  return base64Url;
+}
+
+// Function to decode a base64url encoded string
+const decodeBase64Url = (base64Url) => {
+  // Convert base64url to base64
+  const base64 = base64UrlToBase64(base64Url);
+
+  // Decode base64 string to UTF-8
+  const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+  }).join(''));
+
+  return jsonPayload;
+}
+
+// Decode JWT function
+const decodeJWT = (token) => {
+  const parts = token.split('.');
+  if (parts.length !== 3) {
+      throw new Error('Expected JWT to contain 3 sections, but found ' + parts.length);
+  }
+
+  const payload = JSON.parse(decodeBase64Url(parts[1]));
+
+  return payload;
+}
+
+const isTokenExpired = (token) => {
+  try {
+      const decoded = decodeJWT(token);
+      const currentTime = Math.floor(Date.now() / 1000);
+      return decoded.exp < currentTime;
+  } catch (e) {
+      console.error("Failed to decode JWT", e);
+      return true; // assume expired if there is an error
+  }
+}
+
+/*
+  --------------------------------------------------------------------------------------
   Login de um usuário no sistema
   --------------------------------------------------------------------------------------
 */
 const logout = () => {
-
   // checando se já existe um token salvo no localStorage
   if (localStorage.getItem('token')) {
     localStorage.removeItem('token')

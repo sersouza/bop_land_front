@@ -61,7 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  function handleHashChange() {
+  const handleHashChange = () => {
     const route = window.location.hash.slice(1);
     renderPage(route);
   }
@@ -69,6 +69,18 @@ document.addEventListener("DOMContentLoaded", () => {
   window.addEventListener('hashchange', handleHashChange);
   // Initial page load
   handleHashChange();
+  
+  //verificando a cada minuto se o token expirou, caso positivo é feito o logoff e o modal de login reaparece.
+  setInterval(() => {
+    const token = localStorage.getItem('token')
+    if (isTokenExpired(token)) {
+      console.log("Token expirou.");
+      logout()
+        // Add additional actions here (e.g., refresh token, logout user)
+    } else {
+        console.log("Token ainda válido.");
+    }
+}, 60000); // Check every minute
 });
 
 /*
@@ -76,7 +88,6 @@ document.addEventListener("DOMContentLoaded", () => {
   Criar a resposividade da sidebar
   --------------------------------------------------------------------------------------
 */
-
 const hamburguer = document.getElementById('toggle-btn')
 
 hamburguer.addEventListener("click", () => {
