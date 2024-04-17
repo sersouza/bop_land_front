@@ -1,4 +1,4 @@
-var testeId=0
+var testeId = 0
 const testeGlobal = {}
 var idBOPSelecionado = null
 // Definindo a classe Teste
@@ -225,7 +225,7 @@ const criarTeste = () => {
   const teste = new Teste()
   // salvando o bop_id no objeto instanciado
   teste.bopId = idBOPSelecionado
- 
+
   const row = document.createElement('tr')
   row.innerHTML = `
   <td class="col-md-2"><input type="text" id="nome-teste-${testeId}" class="form-control" aria-label="Amount (to the nearest dollar)"></td>
@@ -234,9 +234,9 @@ const criarTeste = () => {
   <td>${saveSymbol(testeId)}</td>
   `
   tableBody.appendChild(row)
-  
+
   const inputElement = document.getElementById(`nome-teste-${testeId}`)
-  const nomeTesteDefault = `Teste ${testeId}` 
+  const nomeTesteDefault = `Teste ${testeId}`
   inputElement.value = nomeTesteDefault
   teste.nome = nomeTesteDefault
   //criando um listener para capturar a alteraçã no campo select e listar as válvulas para BOP dessa sonda
@@ -244,22 +244,22 @@ const criarTeste = () => {
     // salvando o nome do teste no objeto instanciado
     teste.nome = this.value
   });
-  
-  
+
+
   valvulasTestadas = document.getElementById(`target-valvulas-teste-${testeId}`)
   preventoresTestados = document.getElementById(`target-preventores-teste-${testeId}`)
 
   const valvulasId = bopSalvo.getValvulasDisponiveis().map(v => geraIdComposto(v))
   const preventoresId = bopSalvo.getPreventoresDisponiveis().map(p => geraIdComposto(p))
-  
+
   valvulasTestadas.addEventListener('dragover', (e) => {
     e.preventDefault()
   })
-  
+
   preventoresTestados.addEventListener('dragover', (e) => {
     e.preventDefault()
   })
-  
+
   valvulasTestadas.addEventListener('drop', (e) => {
     console.log("evento de target valvula rodando")
     e.preventDefault()
@@ -278,7 +278,7 @@ const criarTeste = () => {
       alert('Preventor só pode ir para caixa de preventores aceitos');
     }
   })
-  
+
   preventoresTestados.addEventListener('drop', (e) => {
     e.preventDefault()
     e.stopImmediatePropagation()
@@ -309,7 +309,7 @@ Funcões auxiliares do Teste
 */
 
 const saveSymbol = (id) => {
-  return `<button onclick="salvaTeste('${id}')" class="addBtn"><span style="font-size: 1em; color: Tomato;">
+  return `<button onclick="salvarTeste(${id})" class="addBtn"><span style="font-size: 1em; color: Tomato;">
   <i class="lni lni lni-save"></i>
    </span></button>    
 `}
@@ -320,7 +320,7 @@ const salvaTeste = (id) => {
   const preventoresIdComposto = testeObj.getPreventoresTestados()
   const valvulas = idCompostoParaObjeto(valvulasIdComposto)
   const preventores = idCompostoParaObjeto(preventoresIdComposto)
-  const obj = {...testeObj, valvulasTestadas: valvulas, preventoresTestados: preventores}
+  const obj = { ...testeObj, valvulasTestadas: valvulas, preventoresTestados: preventores }
 
   console.log(testeObj)
   console.log(obj)
@@ -334,6 +334,49 @@ const geraIdComposto = (elemento) => {
 const idCompostoParaObjeto = (arrayElementos) => {
   return arrayElementos.map(idComposto => {
     const [id, acronimo] = idComposto.split('_')
-    return {id: id, acronimo: acronimo}
-  } )
+    return { id: id, acronimo: acronimo }
+  })
+}
+
+/*
+  --------------------------------------------------------------------------------------
+  Função para salvar os dados do BOP inserido na view cadastrar BOP
+  --------------------------------------------------------------------------------------
+*/
+const salvarTeste = async (id) => {
+  const testeObj = testeGlobal[id]
+  const valvulasIdComposto = testeObj.getValvulasTestadas()
+  const preventoresIdComposto = testeObj.getPreventoresTestados()
+  const valvulas = idCompostoParaObjeto(valvulasIdComposto)
+  const preventores = idCompostoParaObjeto(preventoresIdComposto)
+  const obj = { ...testeObj, valvulasTestadas: valvulas, preventoresTestados: preventores }
+  const url = URL_BASE + 'teste/'
+    
+  //populando o objeto ser enviado no corpo da requisição 
+  const body = JSON.stringify({
+    nome: obj.nome,
+    bop_id: obj.bopId,
+    valvulas_testadas: obj.valvulasTestadas,
+    preventores_testados: obj.preventoresTestados
+  });
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+      body: body
+    })
+
+    if (response.ok) {
+      alert("Salvo com sucesso!")
+    } else {
+      const data = await response.json();
+      alert(data.mensagem);
+    }
+  } catch (error) {
+    console.log('ERROR ' + error);
+  }
 }
