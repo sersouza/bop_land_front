@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("sidebar").classList.toggle("expand")
 
   // deixando o modal de login ativo ao abrir a aplicação
-  loginModal.show()
+  // loginModal.show()
 
   //criando um listener para fechar o modal após registrar-se ou logar
   document.addEventListener('closeLoginModal', () => {
@@ -44,7 +44,6 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log('ativei o evento de atualizar bop')
   });
 
-
   // router propriamente dito
   const renderPage = (route) => {
     switch (route) {
@@ -55,6 +54,10 @@ document.addEventListener("DOMContentLoaded", () => {
       case '/listar-bop':
         contentDiv.innerHTML = listarBOPView
         listarBOP()
+        break
+      case '/testar-bop':
+        contentDiv.innerHTML = testarBOPView
+        listarSondas()
         break
       default:
         contentDiv.innerHTML = perfilView

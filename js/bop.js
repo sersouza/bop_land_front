@@ -239,7 +239,7 @@ const trashSymbol = (sonda) => {
   --------------------------------------------------------------------------------------
 */
 const populateTable = (data) => {
-  const tableBody = document.getElementById('table-body');
+  const tableBody = document.getElementById('table-body-bop');
 
   const trashSymbol = (sonda) => {
     return `<button onclick="deletaBOP('${sonda}')" class="addBtn"><span style="font-size: 1em; color: Tomato;">
@@ -292,7 +292,7 @@ const populateTable = (data) => {
 */
 const newPopulateTable = (data) => {
    // Clear previous table data
-   const tableBody = document.getElementById('table-body');
+   const tableBody = document.getElementById('table-body-bop');
    tableBody.innerHTML = '';
 
    // Insert new table data
@@ -348,9 +348,9 @@ const cadastrarBOP = async () => {
   sourcePreventores = document.getElementById('source-preventores')
 
   //trazendo do backend a lista de todas as válvulas disponíveis no banco
-  valvulas = await getData('valvulas')
+  valvulas = await getData('valvula/all')
   //trazendo do backend a lista de todas os preventores disponíveis no banco
-  preventores = await getData('preventores')
+  preventores = await getData('preventor/all')
 
   //limpando os campos de target
   if (targetPreventores || targetValvulas) {
@@ -403,8 +403,9 @@ const cadastrarBOP = async () => {
     const sourceID = e.dataTransfer.getData('text/plain')
     const draggedElement = document.getElementById(sourceID);
     if (valvulas.includes(draggedElement.id)) {
-      draggedElement.classList.remove('bg-secondary')
-      draggedElement.classList.add('bg-success')
+      draggedElement.classList.remove('bg-dark-subtle')
+      draggedElement.classList.remove('text-dark-emphasis')
+      draggedElement.classList.add('bg-primary')
       e.target.appendChild(draggedElement)
       bop.addValvulaSelecionada(sourceID)
     }
@@ -419,8 +420,9 @@ const cadastrarBOP = async () => {
     const sourceID = e.dataTransfer.getData('text/plain')
     const draggedElement = document.getElementById(sourceID);
     if (preventores.includes(draggedElement.id)) {
-      draggedElement.classList.remove('bg-secondary')
-      draggedElement.classList.add('bg-success')
+      draggedElement.classList.remove('bg-dark-subtle')
+      draggedElement.classList.remove('text-dark-emphasis')
+      draggedElement.classList.add('bg-primary')
       e.target.appendChild(draggedElement)
       bop.addPreventorSelecionado(sourceID)
     }
