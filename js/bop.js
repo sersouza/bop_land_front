@@ -1,4 +1,3 @@
-// const URL_BASE = 'http://127.0.0.1:5000/'
 const URL_BASE = 'http://localhost:5000/'
 
 // Definindo a classe BOP
@@ -58,51 +57,13 @@ const buscarBOP = () => {
 }
 
 /*
-
-Novo litar BOP c paginação
-
- */
-
-// Function to fetch data and update table
-const fetchData = (pagina) =>  {
-  fetch(`${URL_BASE}bop/?pagina=${pagina}&por_pagina=3`, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }})
-    .then(response => response.json())
-    .then(data => {newPopulateTable(data)})
-    .catch(error => console.error('Error fetching data:', error));
-}
-
-// Function to update pagination controls
-const atualizaPaginacao = (data) => {
-  const paginationContainer = document.getElementById('page-navegation');
-  paginationContainer.innerHTML = '';
-  const totalPaginas = data.total_paginas;
-  const paginaAtual = data.pagina_atual;
-  const temAnterior = data.tem_anterior;
-  const temProximo = data.tem_proximo;
-
-  if (temAnterior) {
-    paginationContainer.innerHTML += `<li class="page-item"><a class="page-link" onclick="fetchData(${paginaAtual - 1})">Anterior</a></li>`;
-  }
-  for (let i = 1; i <= totalPaginas; i++) {
-    paginationContainer.innerHTML += `<li class="page-item ${i === paginaAtual ? 'active' : ''}"><a class="page-link" onclick="fetchData(${i})">${i}</a></li>`;
-  }
-  if (temProximo) {
-    paginationContainer.innerHTML += `<li class="page-item"><a class="page-link" onclick="fetchData(${paginaAtual + 1})">Próximo</a></li>`;
-  }
-}
-
-/*
   --------------------------------------------------------------------------------------
-  Função para obter a listar todos os BOPs existentes
+  Função para listar todos os BOPs existentes de forma paginada
   --------------------------------------------------------------------------------------
 */
 const listarBOP = async (pagina = 1, sonda = null) => {
   if (sonda) {
-    uri = `bop/?sonda=${sonda}&pagina=2&per_pagina=4`
+    uri = `bop/?sonda=${sonda}&pagina=${pagina}&per_pagina=3`
   }
   else {
     uri = `bop/?pagina=${pagina}&por_pagina=3`
@@ -119,7 +80,7 @@ const listarBOP = async (pagina = 1, sonda = null) => {
 
     if (response.ok) {
       const data = await response.json();
-      newPopulateTable(data)
+      populaTabela(data)
       const sondaInput = document.getElementById("sonda-busca")
       sondaInput.value = ''
     } else {
@@ -233,56 +194,29 @@ const trashSymbol = (sonda) => {
   <i class="lni lni-trash-can"></i>
    </span></button>    
 `}
+
 /*
   --------------------------------------------------------------------------------------
-  Função que injeta na tabela os dados de BOP
+  Função atualiza a paginação da tabela do BOP
   --------------------------------------------------------------------------------------
 */
-const populateTable = (data) => {
-  const tableBody = document.getElementById('table-body-bop');
+const atualizaPaginacao = (data) => {
+  const paginationContainer = document.getElementById('page-navegation');
+  paginationContainer.innerHTML = '';
+  const totalPaginas = data.total_paginas;
+  const paginaAtual = data.pagina_atual;
+  const temAnterior = data.tem_anterior;
+  const temProximo = data.tem_proximo;
 
-  const trashSymbol = (sonda) => {
-    return `<button onclick="deletaBOP('${sonda}')" class="addBtn"><span style="font-size: 1em; color: Tomato;">
-    <i class="lni lni-trash-can"></i>
-     </span></button>    
-  `}
-
-
-  // Clear existing rows
-  tableBody.innerHTML = '';
-
-  // Iterate over the data and create table rows
-  data?.content?.map(item => {
-    const row = document.createElement('tr')
-    row.setAttribute("id", item.sonda)
-    const valveRows = Math.ceil(item.valvulas.length / 5)
-    const preventorRows = Math.ceil(item.preventores.length / 5)
-    row.innerHTML = `
-          <td class="col-md-2">${item.sonda}</td>
-          <td class="col-md-6">
-            <table>
-                <tbody>
-                ${Array.from({ length: valveRows }, (_, i) => i).map(i => `
-                    <tr>
-                    ${item.valvulas.slice(i * 5, (i + 1) * 5).map(v => `<td scope="col"><span class="badge bg-dark-subtle border border-dark-subtle text-dark-emphasis rounded-pill">${v}</span></td>`).join('')}
-                    </tr>`).join('')}
-                </tbody>
-            </table>
-          </td>
-          <td class="col-md-6">
-            <table>
-                <tbody>
-                ${Array.from({ length: preventorRows }, (_, i) => i).map(i => `
-                    <tr>
-                    ${item.preventores.slice(i * 5, (i + 1) * 5).map(p => `<td scope="col"><span class="badge bg-dark-subtle border border-dark-subtle text-dark-emphasis rounded-pill">${p}</span></td>`).join('')}
-                    </tr>`).join('')}
-                </tbody>
-            </table>
-        <td>${trashSymbol(item.sonda)}</td>
-        `
-    tableBody.appendChild(row)
+  if (temAnterior) {
+    paginationContainer.innerHTML += `<li class="page-item"><a class="page-link" onclick="listarBOP(${paginaAtual - 1})">Anterior</a></li>`;
   }
-  )
+  for (let i = 1; i <= totalPaginas; i++) {
+    paginationContainer.innerHTML += `<li class="page-item ${i === paginaAtual ? 'active' : ''}"><a class="page-link" onclick="listarBOP(${i})">${i}</a></li>`;
+  }
+  if (temProximo) {
+    paginationContainer.innerHTML += `<li class="page-item"><a class="page-link" onclick="listarBOP(${paginaAtual + 1})">Próximo</a></li>`;
+  }
 }
 
 /*
@@ -290,12 +224,12 @@ const populateTable = (data) => {
   Função que injeta na tabela os dados de BOP
   --------------------------------------------------------------------------------------
 */
-const newPopulateTable = (data) => {
-   // Clear previous table data
+const populaTabela = (data) => {
+   // limpa os dados anteriores
    const tableBody = document.getElementById('table-body-bop');
    tableBody.innerHTML = '';
 
-   // Insert new table data
+   // Insere os novos dados na tabela
    data.items.content.forEach(item => {
      const row = document.createElement('tr')
      row.setAttribute("id", item.sonda)
@@ -327,7 +261,7 @@ const newPopulateTable = (data) => {
          tableBody.appendChild(row)
    });
 
-   // Update pagination controls
+   // Atualiza os controles de paginação
    atualizaPaginacao(data);
 }
 
