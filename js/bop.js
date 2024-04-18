@@ -7,30 +7,30 @@ class BOP {
     this.preventoresSelecionados = preventoresSelecionados
   }
 
-  // Example method to set selected valves
+  // Método para adicionar válvula na lista valvulasSelecionadas
   addValvulaSelecionada(valvula) {
     this.valvulasSelecionadas.push(valvula)
   }
 
-  // Example method to set selected preventers
+  // Método para adicionar preventor na lista preventoresSelecionados
   addPreventorSelecionado(preventor) {
     this.preventoresSelecionados.push(preventor)
   }
 
-  // Example method to set selected valves
+  // Método que retorna todas as válvulas selecionadas
   getValvulasSelecionadas() {
     return this.valvulasSelecionadas
   }
 
-  // Example method to set selected preventers
+  // Método que retorna todas as válvulas selecionadas
   getPreventoresSelecionados() {
     return this.preventoresSelecionados
   }
-
+  // Método que limpa a lista valvulasSelecionadas
   limparPreventoresSelecionados() {
     this.preventoresSelecionados = []
   }
-
+  // Método que limpa a lista preventoresSelecionados
   limparValvulasSelecionadas() {
     this.valvulasSelecionadas = []
   }
@@ -52,7 +52,7 @@ const buscarBOP = () => {
     alert("Digite um nome válido")
   }
   else {
-    listarBOP(1, sonda)
+    listarBOP({sonda: sonda})
   }
 }
 
@@ -61,7 +61,7 @@ const buscarBOP = () => {
   Função para listar todos os BOPs existentes de forma paginada
   --------------------------------------------------------------------------------------
 */
-const listarBOP = async (pagina = 1, sonda = null) => {
+const listarBOP = async ({ pagina = 1, sonda = null } = {}) => {
   if (sonda) {
     uri = `bop/?sonda=${sonda}&pagina=${pagina}&per_pagina=3`
   }
@@ -79,16 +79,16 @@ const listarBOP = async (pagina = 1, sonda = null) => {
     });
 
     if (response.ok) {
-      const data = await response.json();
+      const data = await response.json()
       populaTabela(data)
       const sondaInput = document.getElementById("sonda-busca")
       sondaInput.value = ''
     } else {
-      const data = await response.json();
-      alert(data.mensagem);
+      const data = await response.json()
+      alert(data.mensagem)
     }
   } catch (error) {
-    console.log('ERROR ' + error);
+    console.log('ERROR ' + error)
   }
 }
 
@@ -145,9 +145,9 @@ const salvarBOP = async () => {
   Função para deletar um BOP a partir do nome da sonda e removê-lo da tela
   --------------------------------------------------------------------------------------
 */
-const deletaBOP = async (sonda) => {
-  const url = URL_BASE + 'bop/?sonda=' + sonda
-  const element = document.getElementById(sonda)
+const deletaBOP = async (id) => {
+  const url = URL_BASE + 'bop/?id=' + id
+  const element = document.getElementById(id)
 
   if (confirm("Quer realmente deletar?")) {
     try {
@@ -164,11 +164,11 @@ const deletaBOP = async (sonda) => {
         element.remove()
 
       } else {
-        const data = await response.json();
-        alert(data.mensagem);
+        const data = await response.json()
+        alert(data.mensagem)
       }
     } catch (error) {
-      console.log('ERROR ' + error);
+      console.log('ERROR ' + error)
     }
   }
 }
@@ -180,9 +180,8 @@ const deletaBOP = async (sonda) => {
   --------------------------------------------------------------------------------------
   --------------------------------------------------------------------------------------
 */
-
-const trashSymbol = (sonda) => {
-  return `<button onclick="deletaBOP('${sonda}')" class="addBtn"><span style="font-size: 1em; color: Tomato;">
+const acaoDeletar = (id) => {
+  return `<button onclick="deletaBOP('${id}')" class="addBtn"><span style="font-size: 1em; color: Tomato;">
   <i class="lni lni-trash-can"></i>
    </span></button>    
 `}
@@ -194,20 +193,20 @@ const trashSymbol = (sonda) => {
 */
 const atualizaPaginacao = (data) => {
   const paginationContainer = document.getElementById('page-navegation');
-  paginationContainer.innerHTML = '';
-  const totalPaginas = data.total_paginas;
-  const paginaAtual = data.pagina_atual;
-  const temAnterior = data.tem_anterior;
-  const temProximo = data.tem_proximo;
+  paginationContainer.innerHTML = ''
+  const totalPaginas = data.total_paginas
+  const paginaAtual = data.pagina_atual
+  const temAnterior = data.tem_anterior
+  const temProximo = data.tem_proximo
 
   if (temAnterior) {
-    paginationContainer.innerHTML += `<li class="page-item"><a class="page-link" onclick="listarBOP(${paginaAtual - 1})">Anterior</a></li>`;
+    paginationContainer.innerHTML += `<li class="page-item"><a class="page-link" onclick="listarBOP({pagina: ${paginaAtual - 1}})">Anterior</a></li>`
   }
   for (let i = 1; i <= totalPaginas; i++) {
-    paginationContainer.innerHTML += `<li class="page-item ${i === paginaAtual ? 'active' : ''}"><a class="page-link" onclick="listarBOP(${i})">${i}</a></li>`;
+    paginationContainer.innerHTML += `<li class="page-item ${i === paginaAtual ? 'active' : ''}"><a class="page-link" onclick="listarBOP({pagina: ${i}})">${i}</a></li>`
   }
   if (temProximo) {
-    paginationContainer.innerHTML += `<li class="page-item"><a class="page-link" onclick="listarBOP(${paginaAtual + 1})">Próximo</a></li>`;
+    paginationContainer.innerHTML += `<li class="page-item"><a class="page-link" onclick="listarBOP({pagina: ${paginaAtual + 1}})">Próximo</a></li>`
   }
 }
 
@@ -218,13 +217,13 @@ const atualizaPaginacao = (data) => {
 */
 const populaTabela = (data) => {
    // limpa os dados anteriores
-   const tableBody = document.getElementById('table-body-bop');
-   tableBody.innerHTML = '';
+   const tableBody = document.getElementById('table-body-bop')
+   tableBody.innerHTML = ''
 
    // Insere os novos dados na tabela
    data.items.content.forEach(item => {
      const row = document.createElement('tr')
-     row.setAttribute("id", item.sonda)
+     row.setAttribute("id", item.id)
      const valveRows = Math.ceil(item.valvulas.length / 5)
      const preventorRows = Math.ceil(item.preventores.length / 5)
      row.innerHTML = `
@@ -248,15 +247,14 @@ const populaTabela = (data) => {
                      </tr>`).join('')}
                  </tbody>
              </table>
-         <td>${trashSymbol(item.sonda)}</td>
+         <td>${acaoDeletar(item.id)}</td>
          `
          tableBody.appendChild(row)
    });
 
    // Atualiza os controles de paginação
-   atualizaPaginacao(data);
+   atualizaPaginacao(data)
 }
-
 
 /*
   --------------------------------------------------------------------------------------
@@ -365,7 +363,7 @@ const cadastrarBOP = async () => {
 */
 const removeAllChildNodes = (parent) => {
   while (parent.firstChild) {
-    parent.removeChild(parent.firstChild);
+    parent.removeChild(parent.firstChild)
   }
 }
 
@@ -375,21 +373,21 @@ const removeAllChildNodes = (parent) => {
   --------------------------------------------------------------------------------------
 */
 const getData = async (uri) => {
-  let url = URL_BASE + uri;
+  let url = URL_BASE + uri
   try {
     const response = await fetch(url, {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${localStorage.getItem('token')}`
       }
-    });
+    })
     if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
+      throw new Error(`HTTP error! Status: ${response.status}`)
     }
-    const data = await response.json();
-    return data; // Return the parsed JSON data
+    const data = await response.json()
+    return data // Return the parsed JSON data
   } catch (error) {
-    console.error('Error:', error);
-    throw error; // Re-throw the error to be caught by the caller
+    console.error('Error:', error)
+    throw error // Re-throw the error to be caught by the caller
   }
 }
