@@ -33,14 +33,6 @@ class Teste {
   getPreventoresTestados() {
     return this.preventoresTestados
   }
-
-  limparPreventoresSelecionados() {
-    this.preventoresSelecionados = []
-  }
-
-  limparValvulasSelecionadas() {
-    this.valvulasSelecionadas = []
-  }
 }
 
 // Definindo a classe Teste
@@ -62,14 +54,6 @@ class BOPSalvo {
   // Example method to set selected preventers
   getPreventoresDisponiveis() {
     return this.preventoresDisponiveis
-  }
-
-  limparPreventoresSelecionados() {
-    this.preventoresSelecionados = []
-  }
-
-  limparValvulasSelecionadas() {
-    this.valvulasSelecionadas = []
   }
 }
 

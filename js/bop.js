@@ -64,8 +64,8 @@ Novo litar BOP c paginação
  */
 
 // Function to fetch data and update table
-function fetchData(page) {
-  fetch(`${URL_BASE}bop/?page=${page}&per_page=3`, {
+const fetchData = (pagina) =>  {
+  fetch(`${URL_BASE}bop/?pagina=${pagina}&por_pagina=3`, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -76,22 +76,22 @@ function fetchData(page) {
 }
 
 // Function to update pagination controls
-function updatePagination(data) {
+const atualizaPaginacao = (data) => {
   const paginationContainer = document.getElementById('page-navegation');
   paginationContainer.innerHTML = '';
-  const totalPages = data.total_pages;
-  const currentPage = data.current_page;
-  const hasPrev = data.has_prev;
-  const hasNext = data.has_next;
+  const totalPaginas = data.total_paginas;
+  const paginaAtual = data.pagina_atual;
+  const temAnterior = data.tem_anterior;
+  const temProximo = data.tem_proximo;
 
-  if (hasPrev) {
-    paginationContainer.innerHTML += `<li class="page-item"><a class="page-link" onclick="fetchData(${currentPage - 1})">Anterior</a></li>`;
+  if (temAnterior) {
+    paginationContainer.innerHTML += `<li class="page-item"><a class="page-link" onclick="fetchData(${paginaAtual - 1})">Anterior</a></li>`;
   }
-  for (let i = 1; i <= totalPages; i++) {
-    paginationContainer.innerHTML += `<li class="page-item ${i === currentPage ? 'active' : ''}"><a class="page-link" onclick="fetchData(${i})">${i}</a></li>`;
+  for (let i = 1; i <= totalPaginas; i++) {
+    paginationContainer.innerHTML += `<li class="page-item ${i === paginaAtual ? 'active' : ''}"><a class="page-link" onclick="fetchData(${i})">${i}</a></li>`;
   }
-  if (hasNext) {
-    paginationContainer.innerHTML += `<li class="page-item"><a class="page-link" onclick="fetchData(${currentPage + 1})">Próximo</a></li>`;
+  if (temProximo) {
+    paginationContainer.innerHTML += `<li class="page-item"><a class="page-link" onclick="fetchData(${paginaAtual + 1})">Próximo</a></li>`;
   }
 }
 
@@ -100,12 +100,12 @@ function updatePagination(data) {
   Função para obter a listar todos os BOPs existentes
   --------------------------------------------------------------------------------------
 */
-const listarBOP = async (page = 1, sonda = null) => {
+const listarBOP = async (pagina = 1, sonda = null) => {
   if (sonda) {
-    uri = `bop/?sonda=${sonda}&page=2&per_page=4`
+    uri = `bop/?sonda=${sonda}&pagina=2&per_pagina=4`
   }
   else {
-    uri = `bop/?page=${page}&per_page=3`
+    uri = `bop/?pagina=${pagina}&por_pagina=3`
   }
   const url = URL_BASE + uri
 
@@ -328,7 +328,7 @@ const newPopulateTable = (data) => {
    });
 
    // Update pagination controls
-   updatePagination(data);
+   atualizaPaginacao(data);
 }
 
 

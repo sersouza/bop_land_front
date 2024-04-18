@@ -5,40 +5,49 @@ const SERVIDOR_FORA = "Servidor indisponível. Para utilizar esta página, é es
   Registrar um usuário no sistema
   --------------------------------------------------------------------------------------
 */
-const cadastrarUsuario = () => {
+const cadastrarUsuario = async () => {
   const nome = document.getElementById('nome-usuario-registro').value
   const email = document.getElementById('email-usuario-registro').value
   const senha = document.getElementById('senha-usuario-registro').value
 
   if (nome.trim() === '' || email.trim() === '' || senha.trim() === '') {
-    alert("Por favor, preencha todos os campos");
-    return; // Exit the function early
+    alert("Por favor, preencha todos os campos")
+    return
   }
 
-  const formData = new FormData();
-  formData.append('nome', nome)
-  formData.append('email', email)
-  formData.append('senha', senha)
+  //populando o objeto a ser enviado no corpo da requisição 
+  const body = JSON.stringify({
+    nome: nome,
+    email: email,
+    senha: senha,
+  })
 
   const url = URL_BASE + 'auth/register'
 
-  fetch(url, { method: 'post', body: formData })
-    .then(res => {
-      if (res.ok) {
-        alert("Salvo com sucesso!")
-        setTimeout(() => {
-          const closeEvent = new Event('closeRegistroModal');
-          document.dispatchEvent(closeEvent);
-        }, 500)
-      }
-      else {
-        res.json().then(data => alert(data.mensagem))
-      }
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+      body: body
     })
-    .catch(error => {
-      console.log('ERROR ' + error)
-      alert(SERVIDOR_FORA)
-    })
+
+    if (response.ok) {
+      alert("Salvo com sucesso!")
+      setTimeout(() => {
+        const closeEvent = new Event('closeRegistroModal')
+        document.dispatchEvent(closeEvent)
+      }, 500)
+    } else {
+      const data = await response.json()
+      alert(data.mensagem)
+    }
+  } catch (error) {
+    console.log('ERROR ' + error)
+    alert(SERVIDOR_FORA)
+  }
 }
 
 /*
@@ -47,7 +56,7 @@ const cadastrarUsuario = () => {
   --------------------------------------------------------------------------------------
 */
 const login = async () => {
-  const formData = new FormData();
+  const formData = new FormData()
   const email = document.getElementById('email-usuario').value
   const senha = document.getElementById('senha-usuario').value
 
@@ -56,7 +65,7 @@ const login = async () => {
 
   const url = URL_BASE + 'auth/login'
 
-  // checando se já existe um token salvo no localStorage
+  // checando se já existe um token salvo no localStorage, em caso positivo remove para inserir um novo
   if (localStorage.getItem('token')) {
     localStorage.removeItem('token')
   }
@@ -65,110 +74,50 @@ const login = async () => {
     const response = await fetch(url, {
       method: 'post',
       body: formData
-    });
+    })
 
     if (response.ok) {
-      const data = await response.json();
-      localStorage.setItem('token', data.access_token);
-      await delay(500);
-      dispatchEvents();
+      const data = await response.json()
+      // guardo o token no local storage
+      localStorage.setItem('token', data.access_token)
+      // fecha o modal de login
+      const closeEvent = new Event('closeLoginModal')
+      // atualiza a home do usuário
+      const updateEvent = new Event('updatePerfilView')
+      document.dispatchEvent(updateEvent)
+      document.dispatchEvent(closeEvent)
     } else {
-      const data = await response.json();
-      alert(data.mensagem);
+      const data = await response.json()
+      alert(data.mensagem)
     }
   } catch (error) {
-    console.log('ERROR ' + error);
+    console.log('ERROR ' + error)
     alert(SERVIDOR_FORA)
   }
 }
 
-/* utils*/
-const delay = (ms) => {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-const dispatchEvents = () => {
-  const closeEvent = new Event('closeLoginModal');
-  const updateEvent = new Event('updatePerfilView');
-  document.dispatchEvent(updateEvent);
-  document.dispatchEvent(closeEvent);
-}
-
 /*
   --------------------------------------------------------------------------------------
-  Método para decodificar o jwt token sem uso de bibliotecas externas
-  --------------------------------------------------------------------------------------
-*/
-// Function to convert base64url encoded string to base64 encoded string
-const base64UrlToBase64 = (base64Url) => {
-  // Replace URL-safe characters with regular base64 characters
-  base64Url = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-
-  // Pad the base64Url string to ensure it has a length multiple of 4
-  while (base64Url.length % 4 !== 0) {
-      base64Url += '=';
-  }
-
-  return base64Url;
-}
-
-// Function to decode a base64url encoded string
-const decodeBase64Url = (base64Url) => {
-  // Convert base64url to base64
-  const base64 = base64UrlToBase64(base64Url);
-
-  // Decode base64 string to UTF-8
-  const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-  }).join(''));
-
-  return jsonPayload;
-}
-
-// Decode JWT function
-const decodeJWT = (token) => {
-  const parts = token.split('.');
-  if (parts.length !== 3) {
-      throw new Error('Expected JWT to contain 3 sections, but found ' + parts.length);
-  }
-
-  const payload = JSON.parse(decodeBase64Url(parts[1]));
-
-  return payload;
-}
-
-const isTokenExpired = (token) => {
-  try {
-      const decoded = decodeJWT(token);
-      const currentTime = Math.floor(Date.now() / 1000);
-      return decoded.exp < currentTime;
-  } catch (e) {
-      console.error("Failed to decode JWT", e);
-      return true; // assume expired if there is an error
-  }
-}
-
-/*
-  --------------------------------------------------------------------------------------
-  Login de um usuário no sistema
+  Logout de um usuário no sistema
   --------------------------------------------------------------------------------------
 */
 const logout = () => {
-  // checando se já existe um token salvo no localStorage
+  // checando se já existe um token salvo no localStorage, caso positivo remove o token
   if (localStorage.getItem('token')) {
     localStorage.removeItem('token')
   }
+  // abre o modal de login
+  const openEvent = new Event('openLoginModal')
+  document.dispatchEvent(openEvent)
 
-  const openEvent = new Event('openLoginModal');
-  document.dispatchEvent(openEvent);
-
-  const clearPerfilView = new Event('clearPerfilView');
-  document.dispatchEvent(clearPerfilView);
+  // limpa a home do usuário
+  const clearPerfilView = new Event('clearPerfilView')
+  document.dispatchEvent(clearPerfilView)
 }
 
 /*
   --------------------------------------------------------------------------------------
-  Coletar o dado de seção do usuario
+  Coletar o dado de seção do usuario e inserir na Home
   --------------------------------------------------------------------------------------
 */
 const updatePerfilView = async () => {
@@ -184,7 +133,7 @@ const updatePerfilView = async () => {
     .then(data => { return data })
     .catch(error => console.log('ERROR ' + error))
 
-  const content = document.getElementById('perfil-content');
+  const content = document.getElementById('perfil-content')
 
   // Clear existing data
   content.innerHTML = ''
@@ -199,11 +148,11 @@ const updatePerfilView = async () => {
 
 /*
   --------------------------------------------------------------------------------------
-  Coletar o dado de seção do usuario
+  Limpar a home do usuario
   --------------------------------------------------------------------------------------
 */
 const clearPerfilView = () => {
-  const content = document.getElementById('perfil-content');
+  const content = document.getElementById('perfil-content')
 
   // Clear existing data
   content.innerHTML = ''
