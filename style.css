@@ -157,3 +157,23 @@ a.sidebar-link:hover{
     --bs-pagination-active-bg: #6c757d;
     --bs-pagination-active-border-color: #6c757d; 
 }
+
+/* Ensuring label and select align inline */
+.form-group {
+    display: flex;
+    align-items: center;  /* Align items vertically in the middle */
+    margin-bottom: 10px;  /* Add some margin to separate from other form groups if necessary */
+}
+.control-label {
+    margin-bottom: 0;  /* Remove bottom margin from the label */
+    padding-right: 15px; /* Consistent spacing between label and select */
+}
+.form-select {
+    width: auto; /* Allow select to grow as per its content */
+}
+
+.tst {
+    border-right:1px solid #6c757d;
+    width: 30%;
+    height: 100px;
+}

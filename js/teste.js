@@ -74,20 +74,26 @@ const listarSondas = async () => {
   //trazendo do back a lista de sondas disponíveis
   bopData = await getData('bop/sondas')
 
-  selectElement.innerHTML += `<option>Escolha uma sonda</option>`
   bopData?.items.map(
     item => {
       selectElement.innerHTML += `<option value=${item.id}>${item.sonda}</option>`
     }
   )
+  // deixando a primeira opção como id inicial
+  idBOPSelecionado = bopData?.items[0]?.id
+  // trazendo do back as válvulas/preventores do BOP selecionado
+  bopSalvo.valvulasDisponiveis = await listarValvulas(idBOPSelecionado)
+  bopSalvo.preventoresDisponiveis = await listarPreventores(idBOPSelecionado)
+  // mostrando os elementos disponiveis do BOP
+  visualizarElementosBOP()
 
   //criando um listener para capturar a alteração no campo select e listar as válvulas para BOP dessa sonda
   selectElement.addEventListener('change', async function () {
     idBOPSelecionado = this.value
-    // atribuindo o bop_id para o objeto de teste criado
-
+    // trazendo do back as válvulas/preventores do BOP selecionado
     bopSalvo.valvulasDisponiveis = await listarValvulas(idBOPSelecionado)
     bopSalvo.preventoresDisponiveis = await listarPreventores(idBOPSelecionado)
+    // mostrando os elementos disponiveis do BOP
     visualizarElementosBOP()
   })
 }
@@ -211,11 +217,13 @@ const criarTeste = () => {
   teste.bopId = idBOPSelecionado
 
   const row = document.createElement('tr')
+  row.setAttribute("id", "testeId_" + testeId)
   row.innerHTML = `
-  <td class="col-md-2"><input type="text" id="nome-teste-${testeId}" class="form-control" aria-label="Amount (to the nearest dollar)"></td>
-  <td id="target-valvulas-teste-${testeId}" class="col-md-6"></td>
-  <td id="target-preventores-teste-${testeId}" class="col-md-6"></td>
-  <td>${saveSymbol(testeId)}</td>
+  <td class="col-md-1 align-middle">${idBOPSelecionado}</td>
+  <td class="col-md-2 align-middle"><input type="text" id="nome-teste-${testeId}" class="form-control"></td>
+  <td id="target-valvulas-teste-${testeId}" class="col-md-4 tst"></td>
+  <td id="target-preventores-teste-${testeId}" class="col-md-4 tst"></td>
+  <td class="col-md-1 align-middle">${saveSymbol(testeId)}</td>
   `
   tableBody.appendChild(row)
 
@@ -298,26 +306,14 @@ const saveSymbol = (id) => {
    </span></button>    
 `}
 
-const salvaTeste = (id) => {
-  const testeObj = testeGlobal[id]
-  const valvulasIdComposto = testeObj.getValvulasTestadas()
-  const preventoresIdComposto = testeObj.getPreventoresTestados()
-  const valvulas = idCompostoParaObjeto(valvulasIdComposto)
-  const preventores = idCompostoParaObjeto(preventoresIdComposto)
-  const obj = { ...testeObj, valvulasTestadas: valvulas, preventoresTestados: preventores }
-
-  console.log(testeObj)
-  console.log(obj)
-}
-
 const geraIdComposto = (elemento) => {
   // console.log(elemento.id + ' ' + elemento.acronimo)
-  return elemento.id + '_' + elemento.acronimo
+  return idBOPSelecionado + '_' + elemento.id + '_' + elemento.acronimo
 }
 
 const idCompostoParaObjeto = (arrayElementos) => {
   return arrayElementos.map(idComposto => {
-    const [id, acronimo] = idComposto.split('_')
+    const [_, id, acronimo] = idComposto.split('_')
     return { id: id, acronimo: acronimo }
   })
 }
@@ -356,6 +352,8 @@ const salvarTeste = async (id) => {
 
     if (response.ok) {
       alert("Salvo com sucesso!")
+      const testeElement = document.getElementById(`testeId_${id}`)
+      testeElement.remove()
     } else {
       const data = await response.json()
       alert(data.mensagem)

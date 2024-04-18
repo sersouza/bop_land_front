@@ -80,9 +80,12 @@ const listarBOPView = `
 `
 const testarBOPView = `
 <div class="container-fluid">
-  <h1>Lista de Testes</h1>
-  <select class="form-select form-select-lg mb-3" aria-label=".form-select-lg example" id="seleciona-sondas">
-  </select>
+  <h1>Criar Testes</h1>
+  <div class="input-group mb-3 mt-3">
+    <label class="input-group-text" for="seleciona-sondas">Selecione uma sonda</label>
+    <select class="form-select" id="seleciona-sondas">
+    </select>
+  </div>
   <div class="row gy-4">
     <div class="col-6">
       <div class="card">
@@ -107,6 +110,7 @@ const testarBOPView = `
   <table id="data-table" class="table">
     <thead>
       <tr>
+        <th scope="col">BOP id</th>
         <th scope="col">Nome do teste</th>
         <th scope="col">Válvulas</th>
         <th scope="col">Preventores</th>
