@@ -106,44 +106,36 @@ const salvarBOP = async () => {
     alert("Digite um nome de sonda para prosseguir")
   }
   else {
-    valvulasSelecionadas = bop.getValvulasSelecionadas()
-    preventoresSelecionados = bop.getPreventoresSelecionados()
-    console.log("valvulas selecionadas antes de salvar")
-    console.log(valvulasSelecionadas)
     //populando o objeto ser enviado no corpo da requisição 
-    const body = new FormData()
-    body.append('sonda', sonda)
-    valvulasSelecionadas.forEach(valvula => {
-      body.append('valvulas', valvula)
-    })
-    preventoresSelecionados.forEach(preventor => {
-      body.append('preventores', preventor)
+    const body = JSON.stringify({
+      sonda: sonda,
+      valvulas: bop.getValvulasSelecionadas(),
+      preventores: bop.getPreventoresSelecionados()
     })
 
     try {
       const response = await fetch(url, {
-        method: 'post',
-        body: body,
+        method: 'POST',
         headers: {
+          'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-
+        },
+        body: body
+      })
       if (response.ok) {
         //limpando o campo de input de sonda
         sondaInput.value = ''
         alert("Salvo com sucesso!")
-
         setTimeout(() => {
           //atualizando a lista de bop com o item recém criado
           document.dispatchEvent(new Event('updateListaBOP'))
         }, 1000)
       } else {
-        const data = await response.json();
-        alert(data.mensagem);
+        const data = await response.json()
+        alert(data.mensagem)
       }
     } catch (error) {
-      console.log('ERROR ' + error);
+      console.log('ERROR ' + error)
     }
   }
 }

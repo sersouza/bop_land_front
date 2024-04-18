@@ -107,17 +107,17 @@ const listarValvulas = async (bop_id) => {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${localStorage.getItem('token')}`
       }
-    });
+    })
 
     if (response.ok) {
-      const data = await response.json();
+      const data = await response.json()
       return data?.content
     } else {
-      const data = await response.json();
-      alert(data.mensagem);
+      const data = await response.json()
+      alert(data.mensagem)
     }
   } catch (error) {
-    console.log('ERROR ' + error);
+    console.log('ERROR ' + error)
   }
 }
 
@@ -136,17 +136,17 @@ const listarPreventores = async (bop_id) => {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${localStorage.getItem('token')}`
       }
-    });
+    })
 
     if (response.ok) {
-      const data = await response.json();
+      const data = await response.json()
       return data?.content
     } else {
-      const data = await response.json();
-      alert(data.mensagem);
+      const data = await response.json()
+      alert(data.mensagem)
     }
   } catch (error) {
-    console.log('ERROR ' + error);
+    console.log('ERROR ' + error)
   }
 }
 
@@ -227,7 +227,7 @@ const criarTeste = () => {
   inputElement.addEventListener('change', function () {
     // salvando o nome do teste no objeto instanciado
     teste.nome = this.value
-  });
+  })
 
 
   valvulasTestadas = document.getElementById(`target-valvulas-teste-${testeId}`)
@@ -249,7 +249,7 @@ const criarTeste = () => {
     e.preventDefault()
     e.stopImmediatePropagation()
     const sourceID = e.dataTransfer.getData('text/plain')
-    const draggedElement = document.getElementById(sourceID);
+    const draggedElement = document.getElementById(sourceID)
     if (valvulasId.includes(draggedElement.id)) {
       draggedElement.classList.remove('bg-dark-subtle')
       draggedElement.classList.remove('text-dark-emphasis')
@@ -259,7 +259,7 @@ const criarTeste = () => {
       teste.addValvulaTestada(sourceID)
     }
     else {
-      alert('Preventor só pode ir para caixa de preventores aceitos');
+      alert('Preventor só pode ir para caixa de preventores aceitos')
     }
   })
 
@@ -267,7 +267,7 @@ const criarTeste = () => {
     e.preventDefault()
     e.stopImmediatePropagation()
     const sourceID = e.dataTransfer.getData('text/plain')
-    const draggedElement = document.getElementById(sourceID);
+    const draggedElement = document.getElementById(sourceID)
     if (preventoresId.includes(draggedElement.id)) {
       draggedElement.classList.remove('bg-dark-subtle')
       draggedElement.classList.remove('text-dark-emphasis')
@@ -277,7 +277,7 @@ const criarTeste = () => {
       teste.addPreventorTestado(sourceID)
     }
     else {
-      alert('Válvula só pode ir para caixa de válvulas aceitas');
+      alert('Válvula só pode ir para caixa de válvulas aceitas')
     }
   })
   // guardando a instância do teste na variável global
@@ -293,7 +293,7 @@ Funcões auxiliares do Teste
 */
 
 const saveSymbol = (id) => {
-  return `<button onclick="salvarTeste(${id})" class="addBtn"><span style="font-size: 1em; color: Tomato;">
+  return `<button onclick="salvarTeste(${id})" class="addBtn"><span style="font-size: 1em color: Tomato">
   <i class="lni lni lni-save"></i>
    </span></button>    
 `}
@@ -342,7 +342,7 @@ const salvarTeste = async (id) => {
     bop_id: obj.bopId,
     valvulas_testadas: obj.valvulasTestadas,
     preventores_testados: obj.preventoresTestados
-  });
+  })
 
   try {
     const response = await fetch(url, {
@@ -357,10 +357,10 @@ const salvarTeste = async (id) => {
     if (response.ok) {
       alert("Salvo com sucesso!")
     } else {
-      const data = await response.json();
-      alert(data.mensagem);
+      const data = await response.json()
+      alert(data.mensagem)
     }
   } catch (error) {
-    console.log('ERROR ' + error);
+    console.log('ERROR ' + error)
   }
 }
