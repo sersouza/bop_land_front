@@ -80,7 +80,7 @@ const listarBOP = async ({ pagina = 1, sonda = null } = {}) => {
 
     if (response.ok) {
       const data = await response.json()
-      populaTabela(data)
+      populaTabelaBOP(data)
       const sondaInput = document.getElementById("sonda-busca")
       sondaInput.value = ''
     } else {
@@ -192,7 +192,7 @@ const acaoDeletar = (id) => {
   --------------------------------------------------------------------------------------
 */
 const atualizaPaginacao = (data) => {
-  const paginationContainer = document.getElementById('page-navegation');
+  const paginationContainer = document.getElementById('page-navegation-bop');
   paginationContainer.innerHTML = ''
   const totalPaginas = data.total_paginas
   const paginaAtual = data.pagina_atual
@@ -215,7 +215,7 @@ const atualizaPaginacao = (data) => {
   Função que injeta na tabela os dados de BOP
   --------------------------------------------------------------------------------------
 */
-const populaTabela = (data) => {
+const populaTabelaBOP = (data) => {
    // limpa os dados anteriores
    const tableBody = document.getElementById('table-body-bop')
    tableBody.innerHTML = ''

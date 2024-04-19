@@ -29,8 +29,8 @@ const listarBOPView = `
     </table>
   </div>
   <nav aria-label="Page navigation example" >
-  <ul class="pagination pagination-sm" id="page-navegation"></ul>
-</nav>
+    <ul class="pagination pagination-sm" id="page-navegation-bop"></ul>
+  </nav>
   
   <div class="offcanvas offcanvas-end" tabindex="-1" id="cadastrarBOPSideBar" aria-labelledby="cadastrarBOPSideBarLabel">
       <div class="offcanvas-header">
@@ -107,27 +107,69 @@ const testarBOPView = `
   <button onclick="criarTeste()" class="mt-3">+Teste</button>
   <div id="criar-teste-area"></div>
   <div class="table-responsive">
-  <table id="data-table" class="table">
-    <thead>
-      <tr>
-        <th scope="col">BOP id</th>
-        <th scope="col">Nome do teste</th>
-        <th scope="col">Válvulas</th>
-        <th scope="col">Preventores</th>
-        <th scope="col">Ações</th>
-      </tr>
-    </thead>
-    <tbody id="table-body-teste">
-      <!-- Data will be inserted here dynamically -->
-    </tbody>
-  </table>
-</div>
+    <table id="data-table" class="table">
+      <thead>
+        <tr>
+          <th scope="col">BOP id</th>
+          <th scope="col">Nome do teste</th>
+          <th scope="col">Válvulas</th>
+          <th scope="col">Preventores</th>
+          <th scope="col">Ações</th>
+        </tr>
+      </thead>
+      <tbody id="table-body-teste">
+        <!-- Data will be inserted here dynamically -->
+      </tbody>
+    </table>
+  </div>
 </div>
 `
 
 const perfilView = `
 <div class="container-fluid">
   <div id="perfil-content"></div>
+  <h1>Testes em andamento</h1>
+  <div class="table-responsive">
+    <table id="data-table" class="table">
+      <thead>
+        <tr>
+          <th scope="col">BOP id</th>
+          <th scope="col">Nome do teste</th>
+          <th scope="col">Válvulas</th>
+          <th scope="col">Preventores</th>
+          <th scope="col">Ações</th>
+        </tr>
+      </thead>
+      <tbody id="table-body-teste-perfil-andamento">
+        <!-- Data will be inserted here dynamically -->
+      </tbody>
+    </table>
+  </div>
+  <nav aria-label="Page navigation example" >
+    <ul class="pagination pagination-sm" id="page-navegation-teste"></ul>
+  </nav>
+  <h1>Testes aprovados</h1>
+  <div class="table-responsive">
+    <table id="data-table" class="table">
+      <thead>
+        <tr>
+          <th scope="col">BOP id</th>
+          <th scope="col">Nome do teste</th>
+          <th scope="col">Válvulas</th>
+          <th scope="col">Preventores</th>
+          <th scope="col">Aprovador por</th>
+          <th scope="col">data de aprovação</th>
+        </tr>
+      </thead>
+      <tbody id="table-body-teste-perfil-aprovados">
+        <!-- Data will be inserted here dynamically -->
+      </tbody>
+    </table>
+  </div>
+  <nav aria-label="Page navigation example" >
+    <ul class="pagination pagination-sm" id="page-navegation-teste"></ul>
+  </nav>
+</div>
 `
 
 const cadastrarBOPView = `

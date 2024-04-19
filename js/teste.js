@@ -202,7 +202,7 @@ const visualizarElementosBOP = () => {
 
 /*
   --------------------------------------------------------------------------------------
-  Função que injeta na tabela os dados de Teste
+  Função que permite criar testes
   --------------------------------------------------------------------------------------
 */
 const criarTeste = () => {
@@ -223,7 +223,7 @@ const criarTeste = () => {
   <td class="col-md-2 align-middle"><input type="text" id="nome-teste-${testeId}" class="form-control"></td>
   <td id="target-valvulas-teste-${testeId}" class="col-md-4 tst"></td>
   <td id="target-preventores-teste-${testeId}" class="col-md-4 tst"></td>
-  <td class="col-md-1 align-middle">${saveSymbol(testeId)}</td>
+  <td class="col-md-1 align-middle">${acaoSalvar(testeId)}</td>
   `
   tableBody.appendChild(row)
 
@@ -292,36 +292,40 @@ const criarTeste = () => {
   testeGlobal[testeId] = teste
 }
 
-/* 
---------------------------------------------------------------------------------------
---------------------------------------------------------------------------------------
-Funcões auxiliares do Teste
---------------------------------------------------------------------------------------
---------------------------------------------------------------------------------------
-*/
-
-const saveSymbol = (id) => {
-  return `<button onclick="salvarTeste(${id})" class="addBtn"><span style="font-size: 1em color: Tomato">
-  <i class="lni lni lni-save"></i>
-   </span></button>    
-`}
-
-const geraIdComposto = (elemento) => {
-  // console.log(elemento.id + ' ' + elemento.acronimo)
-  return idBOPSelecionado + '_' + elemento.id + '_' + elemento.acronimo
-}
-
-const idCompostoParaObjeto = (arrayElementos) => {
-  return arrayElementos.map(idComposto => {
-    const [_, id, acronimo] = idComposto.split('_')
-    return { id: id, acronimo: acronimo }
-  })
-}
-
 /*
   --------------------------------------------------------------------------------------
-  Função para salvar os dados do BOP inserido na view cadastrar BOP
+  Função para listar todos os Testes existentes de forma paginada
   --------------------------------------------------------------------------------------
+*/
+const listarTeste = async ({ pagina = 1} = {}) => {
+  uri = `teste/?pagina=${pagina}&por_pagina=3`
+  const url = URL_BASE + uri
+
+  try {
+    const response = await fetch(url, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+
+    if (response.ok) {
+      const data = await response.json()
+      populaTabelaTeste(data)
+    } else {
+      const data = await response.json()
+      alert(data.mensagem)
+    }
+  } catch (error) {
+    console.log('ERROR ' + error)
+  }
+}
+
+
+/*
+--------------------------------------------------------------------------------------
+Função para salvar os dados do Teste linha a linha
+--------------------------------------------------------------------------------------
 */
 const salvarTeste = async (id) => {
   const testeObj = testeGlobal[id]
@@ -331,7 +335,7 @@ const salvarTeste = async (id) => {
   const preventores = idCompostoParaObjeto(preventoresIdComposto)
   const obj = { ...testeObj, valvulasTestadas: valvulas, preventoresTestados: preventores }
   const url = URL_BASE + 'teste/'
-    
+  
   //populando o objeto ser enviado no corpo da requisição 
   const body = JSON.stringify({
     nome: obj.nome,
@@ -349,7 +353,7 @@ const salvarTeste = async (id) => {
       },
       body: body
     })
-
+    
     if (response.ok) {
       alert("Salvo com sucesso!")
       const testeElement = document.getElementById(`testeId_${id}`)
@@ -360,5 +364,186 @@ const salvarTeste = async (id) => {
     }
   } catch (error) {
     console.log('ERROR ' + error)
+  }
+}
+
+/*
+--------------------------------------------------------------------------------------
+Função para aprovar o Teste
+--------------------------------------------------------------------------------------
+*/
+const aprovarTeste = async (id) => {
+  uri = `teste/aprovar?id=${id}`
+  const url = URL_BASE + uri
+
+  try {
+    const response = await fetch(url, {
+      method: "PUT",
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+
+    if (response.ok) {
+      alert("Teste aprovado com sucesso")
+    } else {
+      const data = await response.json()
+      alert(data.mensagem)
+    }
+  } catch (error) {
+    console.log('ERROR ' + error)
+  }
+}
+
+
+/* 
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+Funcões auxiliares do Teste
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+*/
+
+const acaoSalvar = (id) => {
+  return `<button onclick="salvarTeste(${id})" class="addBtn"><span style="font-size: 1em color: Tomato">
+  <i class="lni lni lni-save"></i>
+   </span></button>    
+`}
+
+const acaoAprovar = (id) => {
+  return `<button onclick="aprovarTeste(${id})" class="addBtn"><span style="font-size: 1em color: Tomato">
+  <i class="lni lni-checkmark"></i>
+   </span></button>    
+`}
+
+const geraIdComposto = (elemento) => {
+  // console.log(elemento.id + ' ' + elemento.acronimo)
+  return idBOPSelecionado + '_' + elemento.id + '_' + elemento.acronimo
+}
+
+const idCompostoParaObjeto = (arrayElementos) => {
+  return arrayElementos.map(idComposto => {
+    const [_, id, acronimo] = idComposto.split('_')
+    return { id: id, acronimo: acronimo }
+  })
+}
+
+/*
+  --------------------------------------------------------------------------------------
+  Função que injeta na tabela os dados de Teste em andamento
+  --------------------------------------------------------------------------------------
+*/
+const populaTabelaTeste = (data) => {
+  // limpa os dados anteriores
+  const tableBody = document.getElementById('table-body-teste-perfil-andamento')
+  tableBody.innerHTML = ''
+  console.log(data)
+  // Insere os novos dados na tabela
+  data.items.content.forEach(item => {
+    const row = document.createElement('tr')
+    row.setAttribute("id", item.id)
+    const valveRows = Math.ceil(item.valvulas_testadas.length / 5)
+    const preventorRows = Math.ceil(item.preventores_testados.length / 5)
+    row.innerHTML = `
+          <td class="col-md-1">${item.bop_id}</td>
+          <td class="col-md-2">${item.nome}</td>
+          <td class="col-md-4">
+            <table>
+                <tbody>
+                ${Array.from({ length: valveRows }, (_, i) => i).map(i => `
+                    <tr>
+                    ${item.valvulas_testadas.slice(i * 5, (i + 1) * 5).map(v => `<td scope="col"><span class="badge bg-dark-subtle border border-dark-subtle text-dark-emphasis rounded-pill">${v}</span></td>`).join('')}
+                    </tr>`).join('')}
+                </tbody>
+            </table>
+          </td>
+          <td class="col-md-4">
+            <table>
+                <tbody>
+                ${Array.from({ length: preventorRows }, (_, i) => i).map(i => `
+                    <tr>
+                    ${item.preventores_testados.slice(i * 5, (i + 1) * 5).map(p => `<td scope="col"><span class="badge bg-dark-subtle border border-dark-subtle text-dark-emphasis rounded-pill">${p}</span></td>`).join('')}
+                    </tr>`).join('')}
+                </tbody>
+            </table>
+        <td class="col-md-2">${acaoAprovar(item.id)}</td>
+        `
+        tableBody.appendChild(row)
+  });
+
+  // Atualiza os controles de paginação
+  atualizaPaginacaoTeste(data)
+}
+
+/*
+  --------------------------------------------------------------------------------------
+  Função que injeta na tabela os dados de Teste aprovados
+  --------------------------------------------------------------------------------------
+*/
+const populaTabelaTesteAprovado = (data) => {
+  // limpa os dados anteriores
+  const tableBody = document.getElementById('table-body-teste-perfil-aprovados')
+  tableBody.innerHTML = ''
+  console.log(data)
+  // Insere os novos dados na tabela
+  data.items.content.forEach(item => {
+    const row = document.createElement('tr')
+    row.setAttribute("id", item.id)
+    const valveRows = Math.ceil(item.valvulas_testadas.length / 5)
+    const preventorRows = Math.ceil(item.preventores_testados.length / 5)
+    row.innerHTML = `
+          <td class="col-md-1">${item.bop_id}</td>
+          <td class="col-md-2">${item.nome}</td>
+          <td class="col-md-4">
+            <table>
+                <tbody>
+                ${Array.from({ length: valveRows }, (_, i) => i).map(i => `
+                    <tr>
+                    ${item.valvulas_testadas.slice(i * 5, (i + 1) * 5).map(v => `<td scope="col"><span class="badge bg-dark-subtle border border-dark-subtle text-dark-emphasis rounded-pill">${v}</span></td>`).join('')}
+                    </tr>`).join('')}
+                </tbody>
+            </table>
+          </td>
+          <td class="col-md-4">
+            <table>
+                <tbody>
+                ${Array.from({ length: preventorRows }, (_, i) => i).map(i => `
+                    <tr>
+                    ${item.preventores_testados.slice(i * 5, (i + 1) * 5).map(p => `<td scope="col"><span class="badge bg-dark-subtle border border-dark-subtle text-dark-emphasis rounded-pill">${p}</span></td>`).join('')}
+                    </tr>`).join('')}
+                </tbody>
+            </table>
+        <td class="col-md-2">Chico aprovador</td>
+        <td class="col-md-2">xx-x-yyy hh:mm</td>
+        `
+        tableBody.appendChild(row)
+  });
+
+  // Atualiza os controles de paginação
+  atualizaPaginacaoTeste(data)
+}
+
+/*
+  --------------------------------------------------------------------------------------
+  Função atualiza a paginação da tabela do BOP
+  --------------------------------------------------------------------------------------
+*/
+const atualizaPaginacaoTeste = (data) => {
+  const paginationContainer = document.getElementById('page-navegation-teste');
+  paginationContainer.innerHTML = ''
+  const totalPaginas = data.total_paginas
+  const paginaAtual = data.pagina_atual
+  const temAnterior = data.tem_anterior
+  const temProximo = data.tem_proximo
+
+  if (temAnterior) {
+    paginationContainer.innerHTML += `<li class="page-item"><a class="page-link" onclick="listarTeste({pagina: ${paginaAtual - 1}})">Anterior</a></li>`
+  }
+  for (let i = 1; i <= totalPaginas; i++) {
+    paginationContainer.innerHTML += `<li class="page-item ${i === paginaAtual ? 'active' : ''}"><a class="page-link" onclick="listarTeste({pagina: ${i}})">${i}</a></li>`
+  }
+  if (temProximo) {
+    paginationContainer.innerHTML += `<li class="page-item"><a class="page-link" onclick="listarTeste({pagina: ${paginaAtual + 1}})">Próximo</a></li>`
   }
 }

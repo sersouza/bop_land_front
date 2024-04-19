@@ -50,6 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
       case '/home':
         contentDiv.innerHTML = perfilView
         document.dispatchEvent(new Event('updatePerfilView'))
+        listarTeste()
         break
       case '/listar-bop':
         contentDiv.innerHTML = listarBOPView
