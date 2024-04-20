@@ -297,8 +297,8 @@ const criarTeste = () => {
   Função para listar todos os Testes existentes de forma paginada
   --------------------------------------------------------------------------------------
 */
-const listarTeste = async ({ pagina = 1} = {}) => {
-  uri = `teste/?pagina=${pagina}&por_pagina=3`
+const listarTeste = async ({ status='em_andamento', pagina = 1, por_pagina = 20} = {}) => {
+  uri = `teste/?status=${status}&pagina=${pagina}&por_pagina=${por_pagina}`
   const url = URL_BASE + uri
 
   try {
@@ -311,7 +311,12 @@ const listarTeste = async ({ pagina = 1} = {}) => {
 
     if (response.ok) {
       const data = await response.json()
-      populaTabelaTeste(data)
+      if(status=='em_andamento'){
+        populaTabelaTeste(data)
+      }
+      if(status=='aprovado'){
+        populaTabelaTesteAprovado(data)
+      }
     } else {
       const data = await response.json()
       alert(data.mensagem)
@@ -387,6 +392,12 @@ const aprovarTeste = async (id) => {
 
     if (response.ok) {
       alert("Teste aprovado com sucesso")
+      const testeElement = document.getElementById(`and_${id}`)
+      testeElement.remove()
+      setTimeout(() => {
+        //atualizando a lista de bop com o item recém criado
+        document.dispatchEvent(new Event('updateListatesteAprovado'))
+      }, 1000)
     } else {
       const data = await response.json()
       alert(data.mensagem)
@@ -395,7 +406,6 @@ const aprovarTeste = async (id) => {
     console.log('ERROR ' + error)
   }
 }
-
 
 /* 
 --------------------------------------------------------------------------------------
@@ -442,11 +452,11 @@ const populaTabelaTeste = (data) => {
   // Insere os novos dados na tabela
   data.items.content.forEach(item => {
     const row = document.createElement('tr')
-    row.setAttribute("id", item.id)
+    row.setAttribute("id", `and_${item.id}`)
     const valveRows = Math.ceil(item.valvulas_testadas.length / 5)
     const preventorRows = Math.ceil(item.preventores_testados.length / 5)
     row.innerHTML = `
-          <td class="col-md-1">${item.bop_id}</td>
+          <td class="col-md-1">${item.sonda}</td>
           <td class="col-md-2">${item.nome}</td>
           <td class="col-md-4">
             <table>
@@ -473,7 +483,7 @@ const populaTabelaTeste = (data) => {
   });
 
   // Atualiza os controles de paginação
-  atualizaPaginacaoTeste(data)
+  // atualizaPaginacaoTeste(data)
 }
 
 /*
@@ -493,35 +503,35 @@ const populaTabelaTesteAprovado = (data) => {
     const valveRows = Math.ceil(item.valvulas_testadas.length / 5)
     const preventorRows = Math.ceil(item.preventores_testados.length / 5)
     row.innerHTML = `
-          <td class="col-md-1">${item.bop_id}</td>
+          <td class="col-md-1">${item.sonda}</td>
           <td class="col-md-2">${item.nome}</td>
-          <td class="col-md-4">
+          <td class="col-md-3">
             <table>
                 <tbody>
                 ${Array.from({ length: valveRows }, (_, i) => i).map(i => `
                     <tr>
-                    ${item.valvulas_testadas.slice(i * 5, (i + 1) * 5).map(v => `<td scope="col"><span class="badge bg-dark-subtle border border-dark-subtle text-dark-emphasis rounded-pill">${v}</span></td>`).join('')}
+                    ${item.valvulas_testadas.slice(i * 5, (i + 1) * 5).map(v => `<td scope="col"><span class="badge bg-success border border-success rounded-pill">${v}</span></td>`).join('')}
                     </tr>`).join('')}
                 </tbody>
             </table>
           </td>
-          <td class="col-md-4">
+          <td class="col-md-3">
             <table>
                 <tbody>
                 ${Array.from({ length: preventorRows }, (_, i) => i).map(i => `
                     <tr>
-                    ${item.preventores_testados.slice(i * 5, (i + 1) * 5).map(p => `<td scope="col"><span class="badge bg-dark-subtle border border-dark-subtle text-dark-emphasis rounded-pill">${p}</span></td>`).join('')}
+                    ${item.preventores_testados.slice(i * 5, (i + 1) * 5).map(p => `<td scope="col"><span class="badge bg-success border border-success rounded-pill">${p}</span></td>`).join('')}
                     </tr>`).join('')}
                 </tbody>
             </table>
-        <td class="col-md-2">Chico aprovador</td>
-        <td class="col-md-2">xx-x-yyy hh:mm</td>
+        <td class="col-md-2">${item.aprovador}</td>
+        <td class="text-sm-start col-md-4 data">${item.data_aprovacao}</td>
         `
         tableBody.appendChild(row)
   });
 
   // Atualiza os controles de paginação
-  atualizaPaginacaoTeste(data)
+  // atualizaPaginacaoTesteAprovado(data)
 }
 
 /*
@@ -538,12 +548,36 @@ const atualizaPaginacaoTeste = (data) => {
   const temProximo = data.tem_proximo
 
   if (temAnterior) {
-    paginationContainer.innerHTML += `<li class="page-item"><a class="page-link" onclick="listarTeste({pagina: ${paginaAtual - 1}})">Anterior</a></li>`
+    paginationContainer.innerHTML += `<li class="page-item"><a onclick="listarTeste({status: 'aprovado', pagina: ${paginaAtual - 1}})">Anterior</a></li>`
   }
   for (let i = 1; i <= totalPaginas; i++) {
-    paginationContainer.innerHTML += `<li class="page-item ${i === paginaAtual ? 'active' : ''}"><a class="page-link" onclick="listarTeste({pagina: ${i}})">${i}</a></li>`
+    paginationContainer.innerHTML += `<li class="page-item ${i === paginaAtual ? 'active' : ''}"><a onclick="listarTeste({status: 'aprovado', pagina: ${i}})">${i}</a></li>`
   }
   if (temProximo) {
-    paginationContainer.innerHTML += `<li class="page-item"><a class="page-link" onclick="listarTeste({pagina: ${paginaAtual + 1}})">Próximo</a></li>`
+    paginationContainer.innerHTML += `<li class="page-item"><a onclick="listarTeste({status: 'aprovado', pagina: ${paginaAtual + 1}})">Próximo</a></li>`
+  }
+}
+
+/*
+  --------------------------------------------------------------------------------------
+  Função atualiza a paginação da tabela do BOP
+  --------------------------------------------------------------------------------------
+*/
+const atualizaPaginacaoTesteAprovado = (data) => {
+  const paginationContainer = document.getElementById('page-navegation-teste-aprovado');
+  paginationContainer.innerHTML = ''
+  const totalPaginas = data.total_paginas
+  const paginaAtual = data.pagina_atual
+  const temAnterior = data.tem_anterior
+  const temProximo = data.tem_proximo
+
+  if (temAnterior) {
+    paginationContainer.innerHTML += `<li class="page-item"><a onclick="listarTeste({pagina: ${paginaAtual - 1}})">Anterior</a></li>`
+  }
+  for (let i = 1; i <= totalPaginas; i++) {
+    paginationContainer.innerHTML += `<li class="page-item ${i === paginaAtual ? 'active' : ''}"><a onclick="listarTeste({pagina: ${i}})">${i}</a></li>`
+  }
+  if (temProximo) {
+    paginationContainer.innerHTML += `<li class="page-item"><a onclick="listarTeste({pagina: ${paginaAtual + 1}})">Próximo</a></li>`
   }
 }

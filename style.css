@@ -177,3 +177,7 @@ a.sidebar-link:hover{
     width: 30%;
     height: 100px;
 }
+
+.data{
+    font-size: 12px;
+}

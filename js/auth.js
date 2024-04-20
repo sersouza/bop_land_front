@@ -143,6 +143,8 @@ const updatePerfilView = async () => {
   }
   else {
     content.innerHTML = `<h1>Olá, ${user.nome}!!!</h1>`
+    await listarTeste()
+    await listarTeste({status: 'aprovado'})
   }
 }
 

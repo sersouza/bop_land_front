@@ -44,6 +44,11 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log('ativei o evento de atualizar bop')
   });
 
+  document.addEventListener('updateListatesteAprovado', () => {
+    listarTeste({ status:'aprovado'})
+    console.log('ativei o evento de atualizar a lista aprovada')
+  });
+
   // router propriamente dito
   const renderPage = (route) => {
     switch (route) {
@@ -51,6 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
         contentDiv.innerHTML = perfilView
         document.dispatchEvent(new Event('updatePerfilView'))
         listarTeste()
+        listarTeste({status: 'aprovado'})
         break
       case '/listar-bop':
         contentDiv.innerHTML = listarBOPView

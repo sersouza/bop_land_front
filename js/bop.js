@@ -61,12 +61,12 @@ const buscarBOP = () => {
   Função para listar todos os BOPs existentes de forma paginada
   --------------------------------------------------------------------------------------
 */
-const listarBOP = async ({ pagina = 1, sonda = null } = {}) => {
+const listarBOP = async ({ pagina = 1, sonda = null, por_pagina = 3 } = {}) => {
   if (sonda) {
-    uri = `bop/?sonda=${sonda}&pagina=${pagina}&per_pagina=3`
+    uri = `bop/?sonda=${sonda}&pagina=${pagina}&per_pagina=${por_pagina}`
   }
   else {
-    uri = `bop/?pagina=${pagina}&por_pagina=3`
+    uri = `bop/?pagina=${pagina}&por_pagina=${por_pagina}`
   }
   const url = URL_BASE + uri
 
@@ -80,7 +80,7 @@ const listarBOP = async ({ pagina = 1, sonda = null } = {}) => {
 
     if (response.ok) {
       const data = await response.json()
-      populaTabelaBOP(data)
+      populaTabelaBOP(data, sonda)
       const sondaInput = document.getElementById("sonda-busca")
       sondaInput.value = ''
     } else {
@@ -186,12 +186,13 @@ const acaoDeletar = (id) => {
    </span></button>    
 `}
 
+
 /*
   --------------------------------------------------------------------------------------
   Função atualiza a paginação da tabela do BOP
   --------------------------------------------------------------------------------------
 */
-const atualizaPaginacao = (data) => {
+const atualizaPaginacaoBOP = (data, sonda) => {
   const paginationContainer = document.getElementById('page-navegation-bop');
   paginationContainer.innerHTML = ''
   const totalPaginas = data.total_paginas
@@ -200,13 +201,13 @@ const atualizaPaginacao = (data) => {
   const temProximo = data.tem_proximo
 
   if (temAnterior) {
-    paginationContainer.innerHTML += `<li class="page-item"><a class="page-link" onclick="listarBOP({pagina: ${paginaAtual - 1}})">Anterior</a></li>`
+    paginationContainer.innerHTML += `<li class="page-item"><a class="page-link" onclick="listarBOP({sonda: ${sonda}, pagina: ${paginaAtual - 1}})">Anterior</a></li>`
   }
   for (let i = 1; i <= totalPaginas; i++) {
-    paginationContainer.innerHTML += `<li class="page-item ${i === paginaAtual ? 'active' : ''}"><a class="page-link" onclick="listarBOP({pagina: ${i}})">${i}</a></li>`
+    paginationContainer.innerHTML += `<li class="page-item ${i === paginaAtual ? 'active' : ''}"><a class="page-link" onclick="listarBOP({sonda: ${sonda}, pagina: ${i}})">${i}</a></li>`
   }
   if (temProximo) {
-    paginationContainer.innerHTML += `<li class="page-item"><a class="page-link" onclick="listarBOP({pagina: ${paginaAtual + 1}})">Próximo</a></li>`
+    paginationContainer.innerHTML += `<li class="page-item"><a class="page-link" onclick="listarBOP({sonda: ${sonda}, pagina: ${paginaAtual + 1}})">Próximo</a></li>`
   }
 }
 
@@ -215,7 +216,7 @@ const atualizaPaginacao = (data) => {
   Função que injeta na tabela os dados de BOP
   --------------------------------------------------------------------------------------
 */
-const populaTabelaBOP = (data) => {
+const populaTabelaBOP = (data, sonda) => {
    // limpa os dados anteriores
    const tableBody = document.getElementById('table-body-bop')
    tableBody.innerHTML = ''
@@ -253,7 +254,7 @@ const populaTabelaBOP = (data) => {
    });
 
    // Atualiza os controles de paginação
-   atualizaPaginacao(data)
+   atualizaPaginacaoBOP(data, sonda)
 }
 
 /*

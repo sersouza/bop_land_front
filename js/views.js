@@ -133,11 +133,11 @@ const perfilView = `
     <table id="data-table" class="table">
       <thead>
         <tr>
-          <th scope="col">BOP id</th>
+          <th scope="col">Sonda</th>
           <th scope="col">Nome do teste</th>
           <th scope="col">Válvulas</th>
           <th scope="col">Preventores</th>
-          <th scope="col">Ações</th>
+          <th scope="col">Aprovar</th>
         </tr>
       </thead>
       <tbody id="table-body-teste-perfil-andamento">
@@ -153,12 +153,12 @@ const perfilView = `
     <table id="data-table" class="table">
       <thead>
         <tr>
-          <th scope="col">BOP id</th>
+          <th scope="col">Sonda</th>
           <th scope="col">Nome do teste</th>
           <th scope="col">Válvulas</th>
           <th scope="col">Preventores</th>
           <th scope="col">Aprovador por</th>
-          <th scope="col">data de aprovação</th>
+          <th scope="col">Data de aprovação</th>
         </tr>
       </thead>
       <tbody id="table-body-teste-perfil-aprovados">
@@ -167,7 +167,7 @@ const perfilView = `
     </table>
   </div>
   <nav aria-label="Page navigation example" >
-    <ul class="pagination pagination-sm" id="page-navegation-teste"></ul>
+    <ul class="pagination pagination-sm" id="page-navegation-teste-aprovado"></ul>
   </nav>
 </div>
 `
